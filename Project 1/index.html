@@ -1,0 +1,198 @@
+<html>
+  <head>
+    <title>INFO 5100 - Project 1</title>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <style>
+      .gridlines line {
+        stroke: #ccc;
+      }
+
+      .gridlines .domain {
+        stroke: none;
+      }
+
+      #slider {
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Alcohol Effects On Study</h1>
+    <p>
+      <b>Kehui Guo (kg357), Zixian Jia (zj36), Yan Zhu(yz2477)</b><br />
+      Drinking has been a big and common issue for students globally. Our
+      project aims to visualize the effect of students alcohol consumption on
+      their studying activities and grades at two Portuguese schools. (source:
+      https://www.kaggle.com/datasets/whenamancodes/alcohol-effects-on-study)
+    </p>
+
+    <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
+    <script>
+      const svg = d3.select("svg#chart");
+      const width = svg.attr("width");
+      const height = svg.attr("height");
+      const margin = { top: 20, right: 50, bottom: 50, left: 50 };
+      const chartWidth = width - margin.left - margin.right;
+      const chartHeight = height - margin.top - margin.bottom;
+
+      let annotations = svg.append("g").attr("id", "annotations");
+      let chartArea = svg
+        .append("g")
+        .attr("id", "plots")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      //import Portuguese dataset
+      d3.csv("Portuguese.csv", d3.autoType).then((data) => {
+        console.log(data);
+
+        //alcohol scale, get total alcohol value
+        data.forEach((d) => {
+          var totalAlc = d["Walc"] + d["Dalc"];
+          d["Talc"] = totalAlc;
+        });
+
+        //alc scale
+        const alcExtent = d3.extent([2, 10]);
+
+        let alcScale = d3
+          .scaleLinear()
+          .domain(alcExtent)
+          .range([chartHeight, 0]);
+
+        //student scale
+        const stdExtent = d3.extent([0, data.length]);
+        let stdScale = d3
+          .scaleLinear()
+          .domain(stdExtent)
+          .range([0, chartWidth]);
+
+        //grade scale
+        const grdExtent = d3.extent([0, 20]);
+        let grdScale = d3
+          .scaleLinear()
+          .domain(grdExtent)
+          .range([chartHeight, 0]);
+
+        //axis and gridlines
+        let leftAxis = d3.axisLeft(grdScale);
+        annotations
+          .append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftAxis);
+
+        let rightAxis = d3.axisRight(alcScale);
+        annotations
+          .append("g")
+          .attr("class", "y axis")
+          .attr(
+            "transform",
+            `translate(${margin.left + chartWidth + 10},${margin.top})`
+          )
+          .call(rightAxis);
+
+        let HorizontalGridlines = d3
+          .axisLeft(grdScale)
+          .tickSize(-chartWidth - 10)
+          .tickFormat("");
+        annotations
+          .append("g")
+          .attr("class", "gridlines")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(HorizontalGridlines);
+
+        // let HorizontalGridlines2 = d3.axisLeft(alcScale)
+        //                             .tickSize(-chartWidth-10)
+        //                             .tickFormat("");
+        // annotations.append('g')
+        //            .attr('class', 'gridlines')
+        //            .attr('transform',`translate(${margin.left-10},${margin.top})`)
+        //            .call(HorizontalGridlines2);
+
+        let VerticalGridlines = d3
+          .axisBottom(stdScale)
+          .tickSize(-chartHeight - 10)
+          .tickFormat("");
+        annotations
+          .append("g")
+          .attr("class", "gridlines")
+          .attr(
+            "transform",
+            `translate(${margin.left},${chartHeight + margin.top})`
+          )
+          .call(VerticalGridlines);
+
+        //axis labels
+        svg
+          .append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "middle")
+          .attr("x", width / 2)
+          .attr("y", height - 20)
+          .text("students (650 in total)");
+
+        svg
+          .append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "middle")
+          .attr("y", 0)
+          .attr("x", 0 - height / 2)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Portuguese grades (0-20)");
+
+        svg
+          .append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "middle")
+          .attr("x", 0 - height / 2)
+          .attr("y", width - 20)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Alcohol consumption (2-10)");
+
+        //sort grades from highest to lowest
+        data.sort((a, b) => d3.ascending(a["G3"], b["G3"]));
+
+        //draw lines for grades
+        var stdColorscale = d3
+          .scaleSequential(d3.interpolateRdYlGn)
+          .domain([grdExtent[1], grdExtent[0]]);
+
+        data.forEach((d, i) => {
+          chartArea
+            .append("line")
+            .attr("x1", stdScale(i))
+            .attr("x2", stdScale(i))
+            .attr("y1", height - margin.bottom - 20)
+            .attr("y2", height - margin.bottom - 20 - grdScale(d["G3"]))
+            .style("stroke-opacity", 0.9)
+            .style("stroke-width", 2)
+            .attr("stroke", stdColorscale(d["G3"]));
+        });
+
+        //sort alc level from lowest to highest
+        data.sort((a, b) => d3.descending(a["Talc"], b["Talc"]));
+
+        //draw lines for alc
+        data.forEach((d, i) => {
+          var alcColorscale = d3
+            .scaleSequential(d3.interpolateReds)
+            .domain([alcExtent[1], alcExtent[0]]);
+
+          chartArea
+            .append("line")
+            .attr("x1", stdScale(i))
+            .attr("x2", stdScale(i))
+            .attr("y1", height - margin.bottom - 20)
+            .attr("y2", height - margin.bottom - 20 - alcScale(d["Talc"]))
+            .style("stroke-opacity", 0.5)
+            .style("stroke-width", 2)
+            .attr("stroke", alcColorscale(d["Talc"]));
+        });
+      });
+    </script>
+  </body>
+</html>
