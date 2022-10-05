@@ -30,6 +30,13 @@
 
     <h1>trying to see if git is working</h1>
     <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
+    <h1>
+      Correlation between Math grade and alcohol drinking on weekdays and
+      weekends
+    </h1>
+    <svg id="chart2" height="500" width="500" style="margin-left: 20"></svg>
+    <svg id="chart3" height="500" width="500" style="margin-left: 20"></svg>
+
     <script>
       const svg = d3.select("svg#chart");
       const width = svg.attr("width");
@@ -193,6 +200,189 @@
             .style("stroke-width", 2)
             .attr("stroke", alcColorscale(d["Talc"]));
         });
+      });
+    </script>
+
+    <script>
+      const svg2 = d3.select("svg#chart2");
+      const svg3 = d3.select("svg#chart3");
+
+      const width2 = svg2.attr("width");
+      const height2 = svg2.attr("height");
+      const margin2 = { top: 20, right: 50, bottom: 50, left: 50 };
+      const chartWidth2 = width2 - margin.left - margin.right;
+      const chartHeight2 = height2 - margin.top - margin.bottom;
+
+      let annotations2 = svg2.append("g").attr("id", "annotations");
+      let chartArea2 = svg2
+        .append("g")
+        .attr("id", "plots")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      let annotations3 = svg3.append("g").attr("id", "annotations");
+      let chartArea3 = svg3
+        .append("g")
+        .attr("id", "plots")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      //import Portuguese dataset
+      d3.csv("Maths.csv", d3.autoType).then((data) => {
+        data.forEach((d) => {
+          d["avgGrd"] = (d["G1"] + d["G2"] + d["G3"]) / 3;
+        });
+
+        console.log(data);
+
+        const alcExtent2 = d3.extent([1, 5]);
+
+        let alcScale2 = d3
+          .scaleLinear()
+          .domain(alcExtent2)
+          .range([0, chartWidth2 - 10]);
+
+        //student scale
+        const stdExtent2 = d3.extent([0, data.length]);
+        let stdScale2 = d3
+          .scaleLinear()
+          .domain(stdExtent2)
+          .range([0, chartWidth2]);
+
+        //grade scale
+        const grdExtent2 = d3.extent([0, 20]);
+        let grdScale = d3
+          .scaleLinear()
+          .domain(grdExtent2)
+          .range([chartHeight2, 0]);
+
+        data.forEach((d, i) => {
+          chartArea2
+            .append("circle")
+            .attr("cx", alcScale2(d["Walc"]))
+            .attr("cy", grdScale(d["avgGrd"]))
+            .attr("r", 4)
+            .attr("opacity", 0.8)
+            .attr("index", i)
+            .style("fill", "steelblue");
+
+          chartArea3
+            .append("circle")
+            .attr("cx", alcScale2(d["Dalc"]))
+            .attr("cy", grdScale(d["avgGrd"]))
+            .attr("r", 4)
+            .attr("opacity", 0.8)
+            .attr("index", i)
+            .style("fill", "steelblue");
+        });
+
+        //axis and gridlines
+        let leftAxis = d3.axisLeft(grdScale);
+        annotations2
+          .append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftAxis);
+
+        annotations3
+          .append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftAxis);
+
+        let bottomAxis = d3.axisBottom(alcScale2);
+        annotations2
+          .append("g")
+          .attr("class", "x axis")
+          .attr("transform", `translate(${margin.left},${chartHeight2 + 20})`)
+          .call(bottomAxis);
+
+        annotations3
+          .append("g")
+          .attr("class", "x axis")
+          .attr("transform", `translate(${margin.left},${chartHeight2 + 20})`)
+          .call(bottomAxis);
+
+        let HorizontalGridlines = d3
+          .axisLeft(grdScale)
+          .tickSize(-chartWidth2 - 10)
+          .tickFormat("");
+        annotations2
+          .append("g")
+          .attr("class", "gridlines")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(HorizontalGridlines);
+
+        annotations3
+          .append("g")
+          .attr("class", "gridlines")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(HorizontalGridlines);
+
+        // let HorizontalGridlines2 = d3.axisLeft(alcScale)
+        //                             .tickSize(-chartWidth-10)
+        //                             .tickFormat("");
+        // annotations.append('g')
+        //            .attr('class', 'gridlines')
+        //            .attr('transform',`translate(${margin.left-10},${margin.top})`)
+        //            .call(HorizontalGridlines2);
+
+        let VerticalGridlines = d3
+          .axisBottom(alcScale2)
+          .tickSize(-chartHeight2 - 10)
+          .tickFormat("");
+
+        annotations2
+          .append("g")
+          .attr("class", "gridlines")
+          .attr(
+            "transform",
+            `translate(${margin.left},${chartHeight2 + margin.top})`
+          )
+          .call(VerticalGridlines);
+
+        annotations3
+          .append("g")
+          .attr("class", "gridlines")
+          .attr(
+            "transform",
+            `translate(${margin.left},${chartHeight2 + margin.top})`
+          )
+          .call(VerticalGridlines);
+
+        svg2
+          .append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "end")
+          .attr("x", width2 - 20)
+          .attr("y", height2 - 10)
+          .text("Weekend alcohol consumption");
+
+        svg3
+          .append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "end")
+          .attr("x", width2 - 20)
+          .attr("y", height2 - 10)
+          .text("Weekday alcohol consumption");
+
+        svg2
+          .append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "middle")
+          .attr("y", 0)
+          .attr("x", 0 - height / 2)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Math grades (0-20)");
+
+        svg3
+          .append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "middle")
+          .attr("y", 0)
+          .attr("x", 0 - height / 2)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Math grades (0-20)");
       });
     </script>
   </body>
