@@ -226,7 +226,7 @@
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
       //import Portuguese dataset
-      d3.csv("Maths.csv", d3.autoType).then((data) => {
+      d3.csv("Portuguese.csv", d3.autoType).then((data) => {
         data.forEach((d) => {
           d["avgGrd"] = (d["G1"] + d["G2"] + d["G3"]) / 3;
         });
@@ -260,7 +260,7 @@
             .attr("cx", alcScale2(d["Walc"]))
             .attr("cy", grdScale(d["avgGrd"]))
             .attr("r", 4)
-            .attr("opacity", 0.8)
+            .attr("opacity", 0.5)
             .attr("index", i)
             .style("fill", "steelblue");
 
@@ -269,10 +269,101 @@
             .attr("cx", alcScale2(d["Dalc"]))
             .attr("cy", grdScale(d["avgGrd"]))
             .attr("r", 4)
-            .attr("opacity", 0.8)
+            .attr("opacity", 0.5)
             .attr("index", i)
             .style("fill", "steelblue");
         });
+
+        //Average grades by alc consumption
+        for (i = 1; i <= 5; i++) {
+          avgwalc = d3.median(
+            data.filter((d) => d["Walc"] === i),
+            (d) => d["avgGrd"]
+          );
+
+          maxwalc = d3.max(
+            data.filter((d) => d["Walc"] === i),
+            (d) => d["avgGrd"]
+          );
+
+          minwalc = d3.min(
+            data.filter((d) => d["Walc"] === i),
+            (d) => d["avgGrd"]
+          );
+
+          avgdalc = d3.median(
+            data.filter((d) => d["Dalc"] === i),
+            (d) => d["avgGrd"]
+          );
+
+          maxdalc = d3.max(
+            data.filter((d) => d["Dalc"] === i),
+            (d) => d["avgGrd"]
+          );
+
+          mindalc = d3.min(
+            data.filter((d) => d["Dalc"] === i),
+            (d) => d["avgGrd"]
+          );
+
+          console.log(maxwalc, minwalc);
+
+          var boxwidth = 20;
+
+          chartArea2
+            .append("line")
+            .attr("x1", alcScale2(i))
+            .attr("x2", alcScale2(i))
+            .attr("y1", grdScale(maxwalc))
+            .attr("y2", grdScale(minwalc))
+            .attr("stroke", "black");
+
+          chartArea2
+            .append("rect")
+            .attr("x", alcScale2(i) - 10)
+            .attr("y", grdScale(avgwalc) - (maxwalc - minwalc) / 2)
+            .attr("width", boxwidth)
+            .attr("height", maxwalc - minwalc)
+            .attr("stroke", "black")
+            .attr("fill", "orange");
+
+          chartArea2
+            .append("rect")
+            .attr("x", alcScale2(i) - 10)
+            .attr("y", grdScale(avgwalc) - 1)
+            .attr("width", boxwidth)
+            .attr("height", 2)
+            .attr("stroke", "none")
+            .attr("fill", "red");
+
+          chartArea3
+            .append("line")
+            .attr("x1", alcScale2(i))
+            .attr("x2", alcScale2(i))
+            .attr("y1", grdScale(maxdalc))
+            .attr("y2", grdScale(mindalc))
+            .attr("stroke", "black");
+
+          chartArea3
+            .append("rect")
+            .attr("x", alcScale2(i) - 10)
+            .attr("y", grdScale(avgdalc) - (maxdalc - mindalc) / 2)
+            .attr("width", boxwidth)
+            .attr("height", maxdalc - mindalc)
+            .attr("stroke", "black")
+            .attr("fill", "orange");
+
+          chartArea3
+            .append("rect")
+            .attr("x", alcScale2(i) - 10)
+            .attr("y", grdScale(avgdalc) - 1)
+            .attr("width", boxwidth)
+            .attr("height", 2)
+            .attr("stroke", "none")
+            .attr("fill", "red");
+
+          console.log();
+        }
 
         //axis and gridlines
         let leftAxis = d3.axisLeft(grdScale);
