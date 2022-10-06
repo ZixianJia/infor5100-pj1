@@ -99,6 +99,16 @@
       <div id="graph2">
         <svg id="chart2" height="500" width="500" style="margin-left: 20"></svg>
         <svg id="chart3" height="500" width="500" style="margin-left: 65"></svg>
+
+        <svg id="legend2" height="40" width="1000" style="margin-top: 20">
+          <line
+            x1="60"
+            x2="80"
+            y1="10"
+            y2="10"
+            style="stroke: #724fff; stroke-width: 2px"
+          />
+        </svg>
       </div>
     </div>
 
@@ -345,6 +355,7 @@
     <script>
       const svg2 = d3.select("svg#chart2");
       const svg3 = d3.select("svg#chart3");
+      const legend2 = d3.select("svg#legend2");
 
       const width2 = svg2.attr("width");
       const height2 = svg2.attr("height");
@@ -410,7 +421,7 @@
             .attr("r", 4)
             .attr("opacity", 0.5)
             .attr("index", i)
-            .style("fill", "steelblue");
+            .style("fill", "#F2994A");
         });
 
         //Average grades by alc consumption
@@ -649,6 +660,13 @@
           .attr("transform", "rotate(-90)")
           .text("Math grades (0-20)");
       });
+
+      legend2
+        .append("text")
+        .text(": Mean Math grade for a drinking level")
+        .attr("x", 85)
+        .attr("y", 15)
+        .attr("fill", "black");
     </script>
     <div id="I1">
       <h1>
@@ -669,7 +687,8 @@
           style="margin-left: 20"
         ></svg>
         <p id="legendLabel">
-          <b>Color Legend:</b><br />(Student total alcohol consumption from low to high)
+          <b>Color Legend:</b><br />(Student total alcohol consumption from low
+          to high)
         </p>
         <svg
           id="alcLegend"
