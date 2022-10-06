@@ -28,10 +28,10 @@
       https://www.kaggle.com/datasets/whenamancodes/alcohol-effects-on-study)
     </p>
 
-    <h1>trying to see if git is working</h1>
+    <h1>Title for graph 1</h1>
     <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
     <h1>
-      Correlation between Math grade and alcohol drinking on weekdays and
+      Correlation between Math grades and alcohol drinking on weekdays and
       weekends
     </h1>
     <svg id="chart2" height="500" width="500" style="margin-left: 20"></svg>
@@ -276,7 +276,7 @@
 
         //Average grades by alc consumption
         for (i = 1; i <= 5; i++) {
-          avgwalc = d3.median(
+          avgwalc = d3.mean(
             data.filter((d) => d["Walc"] === i),
             (d) => d["avgGrd"]
           );
@@ -291,7 +291,7 @@
             (d) => d["avgGrd"]
           );
 
-          avgdalc = d3.median(
+          avgdalc = d3.mean(
             data.filter((d) => d["Dalc"] === i),
             (d) => d["avgGrd"]
           );
@@ -310,57 +310,89 @@
 
           var boxwidth = 20;
 
+          // chartArea2
+          //   .append("line")
+          //   .attr("x1", alcScale2(i))
+          //   .attr("x2", alcScale2(i))
+          //   .attr("y1", grdScale(maxwalc))
+          //   .attr("y2", grdScale(minwalc))
+          //   .attr("stroke", "#F48621");
+
           chartArea2
             .append("line")
-            .attr("x1", alcScale2(i))
-            .attr("x2", alcScale2(i))
+            .attr("x1", alcScale2(i) - 10)
+            .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(maxwalc))
+            .attr("y2", grdScale(maxwalc))
+            .attr("stroke", "#F34710");
+
+          chartArea2
+            .append("line")
+            .attr("x1", alcScale2(i) - 10)
+            .attr("x2", alcScale2(i) + 10)
+            .attr("y1", grdScale(minwalc))
             .attr("y2", grdScale(minwalc))
-            .attr("stroke", "black");
+            .attr("stroke", "#F34710");
+
+          // chartArea2
+          //   .append("rect")
+          //   .attr("x", alcScale2(i) - 10)
+          //   .attr("y", grdScale(avgwalc) - (maxwalc - minwalc) / 2)
+          //   .attr("width", boxwidth)
+          //   .attr("height", maxwalc - minwalc)
+          //   .attr("stroke", "black")
+          //   .attr("fill", "orange");
 
           chartArea2
-            .append("rect")
-            .attr("x", alcScale2(i) - 10)
-            .attr("y", grdScale(avgwalc) - (maxwalc - minwalc) / 2)
-            .attr("width", boxwidth)
-            .attr("height", maxwalc - minwalc)
-            .attr("stroke", "black")
-            .attr("fill", "orange");
+            .append("line")
+            .attr("x1", alcScale2(i) - 10)
+            .attr("x2", alcScale2(i) + 10)
+            .attr("y1", grdScale(avgwalc) - 1)
+            .attr("y2", grdScale(avgwalc) - 1)
+            .attr("stroke", "red")
+            .attr("stroke-width", "2");
 
-          chartArea2
-            .append("rect")
-            .attr("x", alcScale2(i) - 10)
-            .attr("y", grdScale(avgwalc) - 1)
-            .attr("width", boxwidth)
-            .attr("height", 2)
-            .attr("stroke", "none")
-            .attr("fill", "red");
+          // chartArea3
+          //   .append("line")
+          //   .attr("x1", alcScale2(i))
+          //   .attr("x2", alcScale2(i))
+          //   .attr("y1", grdScale(maxdalc))
+          //   .attr("y2", grdScale(mindalc))
+          //   .attr("stroke", "orange");
+
+          // chartArea3
+          //   .append("rect")
+          //   .attr("x", alcScale2(i) - 10)
+          //   .attr("y", grdScale(avgdalc) - (maxdalc - mindalc) / 2)
+          //   .attr("width", boxwidth)
+          //   .attr("height", maxdalc - mindalc)
+          //   .attr("stroke", "black")
+          //   .attr("fill", "orange");
 
           chartArea3
             .append("line")
-            .attr("x1", alcScale2(i))
-            .attr("x2", alcScale2(i))
+            .attr("x1", alcScale2(i) - 10)
+            .attr("x2", alcScale2(i) + 10)
+            .attr("y1", grdScale(avgdalc) - 1)
+            .attr("y2", grdScale(avgdalc) - 1)
+            .attr("stroke", "red")
+            .attr("stroke-width", "2");
+
+          chartArea3
+            .append("line")
+            .attr("x1", alcScale2(i) - 10)
+            .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(maxdalc))
+            .attr("y2", grdScale(maxdalc))
+            .attr("stroke", "#F34710");
+
+          chartArea3
+            .append("line")
+            .attr("x1", alcScale2(i) - 10)
+            .attr("x2", alcScale2(i) + 10)
+            .attr("y1", grdScale(mindalc))
             .attr("y2", grdScale(mindalc))
-            .attr("stroke", "black");
-
-          chartArea3
-            .append("rect")
-            .attr("x", alcScale2(i) - 10)
-            .attr("y", grdScale(avgdalc) - (maxdalc - mindalc) / 2)
-            .attr("width", boxwidth)
-            .attr("height", maxdalc - mindalc)
-            .attr("stroke", "black")
-            .attr("fill", "orange");
-
-          chartArea3
-            .append("rect")
-            .attr("x", alcScale2(i) - 10)
-            .attr("y", grdScale(avgdalc) - 1)
-            .attr("width", boxwidth)
-            .attr("height", 2)
-            .attr("stroke", "none")
-            .attr("fill", "red");
+            .attr("stroke", "#F34710");
 
           console.log();
         }
@@ -528,10 +560,10 @@
           // .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
           .domain(studytimeExtent)
           .range([10, chartWidth2 - 10]);
-        
+
         let x = d3
           .scalePoint()
-          .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
+          .domain(["< 2hrs", "2 - 5hrs", "5 - 10hrs", "> 10hrs"])
           .range([10, chartWidth2 - 10]);
 
         //student scale
@@ -548,7 +580,6 @@
           .domain(grdExtent2)
           .range([chartHeight2, 0]);
 
-          
         //   // X axis
         // var x = d3.scaleBand()
         //   .range([ 0, chartWidth2 ])
@@ -578,7 +609,7 @@
         //     .attr("width", x.bandwidth())
         //     .attr("height", function(d) { return height - y(d.avgGrd); })
         //     .attr("fill", "#69b3a2")
-        
+
         data.forEach((d, i) => {
           chartAreaI1
             .append("circle")
@@ -588,7 +619,6 @@
             .attr("opacity", 0.6)
             .attr("index", i)
             .style("fill", colorScaleI(d["Talc"]));
-
         });
 
         // //axis and gridlines
@@ -630,7 +660,7 @@
             `translate(${margin.left},${chartHeight2 + margin.top})`
           )
           .call(VerticalGridlinesI);
-        
+
         svgI1
           .append("text")
           .attr("class", "y label")
@@ -640,13 +670,13 @@
           .attr("dy", ".75em")
           .attr("transform", "rotate(-90)")
           .text("Portuguese grades (0-20)");
-        
+
         svgI1
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "middle")
-          .attr("x", chartWidthI/2)
-          .attr("y", chartHeightI-30)
+          .attr("x", chartWidthI / 2)
+          .attr("y", chartHeightI - 30)
           .text("Weekly study time");
       });
 
@@ -674,10 +704,10 @@
           // .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
           .domain(studytimeExtent)
           .range([10, chartWidth2 - 10]);
-        
+
         let x = d3
           .scalePoint()
-          .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
+          .domain(["< 2hrs", "2 - 5hrs", "5 - 10hrs", "> 10hrs"])
           .range([10, chartWidth2 - 10]);
 
         //student scale
@@ -694,7 +724,6 @@
           .domain(grdExtent2)
           .range([chartHeight2, 0]);
 
-          
         //   // X axis
         // var x = d3.scaleBand()
         //   .range([ 0, chartWidth2 ])
@@ -724,7 +753,7 @@
         //     .attr("width", x.bandwidth())
         //     .attr("height", function(d) { return height - y(d.avgGrd); })
         //     .attr("fill", "#69b3a2")
-        
+
         data.forEach((d, i) => {
           chartAreaI2
             .append("circle")
@@ -734,7 +763,6 @@
             .attr("opacity", 0.6)
             .attr("index", i)
             .style("fill", colorScaleI(d["Talc"]));
-
         });
 
         // //axis and gridlines
@@ -776,7 +804,7 @@
             `translate(${margin.left},${chartHeight2 + margin.top})`
           )
           .call(VerticalGridlinesI);
-        
+
         svgI2
           .append("text")
           .attr("class", "y label")
@@ -786,13 +814,13 @@
           .attr("dy", ".75em")
           .attr("transform", "rotate(-90)")
           .text("Math grades (0-20)");
-        
+
         svgI2
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "middle")
-          .attr("x", chartWidthI/2)
-          .attr("y", chartHeightI-30)
+          .attr("x", chartWidthI / 2)
+          .attr("y", chartHeightI - 30)
           .text("Weekly study time");
       });
     </script>
