@@ -16,6 +16,10 @@
       #slider {
         width: 200px;
       }
+
+      #legendLabel{
+        margin-left: 30px;
+      }
     </style>
   </head>
   <body>
@@ -586,9 +590,10 @@
     <h1>
       Grade and study time for students with different total alcohol consumption
     </h1>
-    <p>Legend deng hui zuo</p>
-    <svg id="chartI1" height="600" width="600" style="margin-left: 20"></svg>
-    <svg id="chartI2" height="600" width="600" style="margin-left: 20"></svg>
+    <svg id="chartI1" height="550" width="550" style="margin-left: 20"></svg>
+    <svg id="chartI2" height="550" width="550" style="margin-left: 20"></svg>
+    <p id="legendLabel">Student total alcohol consumption:</p>
+    <svg id="alcLegend" height="50" width="300" style="background: #fff; margin-bottom:40px; margin-left: 20px" ></svg>
     <script>
       const svgI1 = d3.select("svg#chartI1");
       const svgI2 = d3.select("svg#chartI2");
@@ -750,8 +755,8 @@
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "middle")
-          .attr("x", chartWidthI / 2)
-          .attr("y", chartHeightI - 30)
+          .attr("x", chartWidthI / 2 + 20)
+          .attr("y", chartHeightI+20)
           .text("Weekly study time");
       });
 
@@ -894,9 +899,11 @@
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "middle")
-          .attr("x", chartWidthI / 2)
-          .attr("y", chartHeightI - 30)
+          .attr("x", chartWidthI / 2 + 20)
+          .attr("y", chartHeightI+20)
           .text("Weekly study time");
+
+        drawLegend("#alcLegend", colorScaleI);
       });
     </script>
   </body>
