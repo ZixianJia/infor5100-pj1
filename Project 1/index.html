@@ -635,8 +635,8 @@
         Grade and study time for students with different total alcohol consumption
       </h1>
       <div id="graph3">
-        <svg id="chartI1" height="550" width="550" style="margin-left: 20"></svg>
-        <svg id="chartI2" height="550" width="550" style="margin-left: 20"></svg>
+        <svg id="chartI1" height="500" width="550" style="margin-left: 20"></svg>
+        <svg id="chartI2" height="500" width="550" style="margin-left: 20"></svg>
         <p id="legendLabel"><b>Color Legend:</b><br>(Student total alcohol consumption)</p>
         <svg id="alcLegend" height="50" width="300" style="background: #fff; margin-bottom:40px; margin-left: 50px" ></svg>
       </div>
@@ -803,7 +803,7 @@
           .attr("class", "x label")
           .attr("text-anchor", "middle")
           .attr("x", chartWidthI / 2 + 25)
-          .attr("y", chartHeightI+15)
+          .attr("y", height-10)
           .text("Weekly study time");
       });
 
@@ -947,7 +947,7 @@
           .attr("class", "x label")
           .attr("text-anchor", "middle")
           .attr("x", chartWidthI / 2 + 25)
-          .attr("y", chartHeightI+15)
+          .attr("y", height-10)
           .text("Weekly study time");
 
         drawLegend("#alcLegend", colorScaleI);
