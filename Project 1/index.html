@@ -27,28 +27,31 @@
 
       #project-heading{
         font-size: 48px;
-        margin-left: 20px;
+        margin-left: 60px;
       }
       p{
-        margin-left: 20px;
+        margin-left: 60px;
       }
       h1{
         margin-left: 20px;
       }
       #K1{
         margin-bottom: 80px;
+        margin-left: 40px;
       }
       #graph1{
         margin-left: 20px;
       }
       #J1{
         margin-bottom: 80px;
+        margin-left: 40px;
       }
       #graph2{
         margin-left: 20px;
       }
       #I1{
         margin-bottom: 80px;
+        margin-left: 40px;
       }
       #graph3{
         margin-left: 20px;
@@ -68,7 +71,7 @@
       <h1>Relationship between Portuguese grade and total alcohol consumption</h1>
       <div id="graph1">
         <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
-        <p id="legendLabel"><b>Color Legend</b><br>(left: Portuguese grade; right: alcohol consumption</p>    
+        <p id="legendLabel"><b>Color Legend</b><br>(left: Portuguese grade; right: alcohol consumption)</p>    
         <svg id="grdcolorLegend" height="50" width="300" style="background: #fff; margin-top:0px; margin-left: 50" ></svg>
         <svg id="alccolorLegend" height="50" width="300" style="background: #fff; margin-top:0px; margin-left: 20" ></svg>
       </div>
@@ -594,7 +597,7 @@
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "end")
-          .attr("x", width2 - 20)
+          .attr("x", width2 - 150)
           .attr("y", height2 - 10)
           .text("Weekend alcohol consumption");
 
@@ -602,7 +605,7 @@
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "end")
-          .attr("x", width2 - 20)
+          .attr("x", width2 - 150)
           .attr("y", height2 - 10)
           .text("Weekday alcohol consumption");
 
@@ -634,7 +637,7 @@
       <div id="graph3">
         <svg id="chartI1" height="550" width="550" style="margin-left: 20"></svg>
         <svg id="chartI2" height="550" width="550" style="margin-left: 20"></svg>
-        <p id="legendLabel">Student total alcohol consumption:</p>
+        <p id="legendLabel"><b>Color Legend:</b><br>(Student total alcohol consumption)</p>
         <svg id="alcLegend" height="50" width="300" style="background: #fff; margin-bottom:40px; margin-left: 50px" ></svg>
       </div>
     </div>
@@ -799,8 +802,8 @@
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "middle")
-          .attr("x", chartWidthI / 2 + 20)
-          .attr("y", chartHeightI+20)
+          .attr("x", chartWidthI / 2 + 25)
+          .attr("y", chartHeightI+15)
           .text("Weekly study time");
       });
 
@@ -943,8 +946,8 @@
           .append("text")
           .attr("class", "x label")
           .attr("text-anchor", "middle")
-          .attr("x", chartWidthI / 2 + 20)
-          .attr("y", chartHeightI+20)
+          .attr("x", chartWidthI / 2 + 25)
+          .attr("y", chartHeightI+15)
           .text("Weekly study time");
 
         drawLegend("#alcLegend", colorScaleI);
