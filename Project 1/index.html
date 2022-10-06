@@ -28,8 +28,11 @@
       https://www.kaggle.com/datasets/whenamancodes/alcohol-effects-on-study)
     </p>
 
-    <h1>Title for graph 1</h1>
-    <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
+    <h1>Relationship between Portuguese grade and total alcohol consumption</h1>
+    <svg id="chart" height="500" width="1000" style="margin-left: 10"></svg>
+    <p><b>Color Legend</b><br>(left: Portuguese grade; right: alcohol consumption</p>    
+    <svg id="grdcolorLegend" height="50" width="300" style="background: #fff; margin-top:0px; margin-left: 10" ></svg>
+    <svg id="alccolorLegend" height="50" width="300" style="background: #fff; margin-top:0px; margin-left: 10" ></svg>
     <h1>
       Correlation between Math grades and alcohol drinking on weekdays and
       weekends
@@ -164,11 +167,16 @@
         //sort grades from highest to lowest
         data.sort((a, b) => d3.ascending(a["G3"], b["G3"]));
 
-        //draw lines for grades
-        var stdColorscale = d3
+        //color scale for grd
+        var grdColorscale = d3
           .scaleSequential(d3.interpolateRdYlGn)
           .domain([grdExtent[1], grdExtent[0]]);
 
+        var IgrdColorscale = d3
+        .scaleSequential(d3.interpolateRdYlGn)
+        .domain(grdExtent);
+
+        //draw lines for grades
         data.forEach((d, i) => {
           chartArea
             .append("line")
@@ -178,17 +186,23 @@
             .attr("y2", height - margin.bottom - 20 - grdScale(d["G3"]))
             .style("stroke-opacity", 0.9)
             .style("stroke-width", 2)
-            .attr("stroke", stdColorscale(d["G3"]));
+            .attr("stroke", grdColorscale(d["G3"]));
         });
+
+        //color scale for alc
+        var alcColorscale = d3
+            .scaleSequential(d3.interpolateReds)
+            .domain([alcExtent[1], alcExtent[0]]);
+
+        var IalcColorscale = d3
+        .scaleSequential(d3.interpolateReds)
+        .domain(alcExtent);
 
         //sort alc level from lowest to highest
         data.sort((a, b) => d3.descending(a["Talc"], b["Talc"]));
 
         //draw lines for alc
         data.forEach((d, i) => {
-          var alcColorscale = d3
-            .scaleSequential(d3.interpolateReds)
-            .domain([alcExtent[1], alcExtent[0]]);
 
           chartArea
             .append("line")
@@ -200,7 +214,68 @@
             .style("stroke-width", 2)
             .attr("stroke", alcColorscale(d["Talc"]));
         });
+
+        drawLegend("#grdcolorLegend", IgrdColorscale);
+
+        drawLegend("#alccolorLegend", IalcColorscale);
       });
+    </script>
+
+  <script>
+    function drawLegend(legendSelector, legendColorScale) {
+
+    //  Color Legend code credit to Prof. Rz !!!
+
+    const offsets = { width: 10,
+                      top: 2,
+                      bottom: 24 };
+    const stepSize = 4;
+    const minMaxExtendPercent = 0;
+
+    const legend = d3.select(legendSelector);
+    const legendHeight = legend.attr("height");
+    const legendBarWidth = legend.attr("width") - (offsets.width * 2);
+    const legendMinMax = d3.extent(
+      legendColorScale.domain());
+    const minMaxExtension = (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
+    const barHeight = legendHeight - offsets.top - offsets.bottom;
+
+    let barScale = d3.scaleLinear().domain([legendMinMax[0]-minMaxExtension,
+                                              legendMinMax[1]+minMaxExtension])
+                                  .range([0,legendBarWidth]);
+    let barAxis = d3.axisBottom(barScale);
+
+    let bar = legend.append("g")
+                    .attr("class", "legend colorbar")
+                    .attr("transform", `translate(${offsets.width},${offsets.top})`)
+
+    // have a continuous / roundable scale
+    if (legendColorScale.hasOwnProperty('rangeRound')) {
+
+      for (let i=0; i<legendBarWidth; i=i+stepSize) {
+
+        let center = i+(stepSize/2);
+        let dataCenter = barAxis.scale().invert( center );
+
+        if ( dataCenter < legendMinMax[1] ) {
+        bar.append("rect")
+            .attr("x", i)
+            .attr("y", 0)
+            .attr("width", stepSize)
+            .attr("height",barHeight)
+            .style("fill", legendColorScale( dataCenter ) );
+        };
+      }
+    }
+
+    //draw legend labels
+    legend.append("g")
+          .attr("class", "legend axis")
+          .attr("transform",`translate(${offsets.width},${offsets.top+barHeight+5})`)
+          .call(barAxis);
+
+    }
+
     </script>
 
     <script>
