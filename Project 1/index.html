@@ -100,13 +100,29 @@
         <svg id="chart2" height="500" width="500" style="margin-left: 20"></svg>
         <svg id="chart3" height="500" width="500" style="margin-left: 65"></svg>
 
-        <svg id="legend2" height="40" width="1000" style="margin-top: 20">
+        <svg id="legend2" height="100" width="1000" style="margin-top: 20">
           <line
             x1="60"
             x2="80"
             y1="10"
             y2="10"
             style="stroke: #724fff; stroke-width: 2px"
+          />
+
+          <line
+            x1="60"
+            x2="80"
+            y1="40"
+            y2="40"
+            style="stroke: green; stroke-width: 2px"
+          />
+
+          <line
+            x1="60"
+            x2="80"
+            y1="70"
+            y2="70"
+            style="stroke: #f37610; stroke-width: 2px"
           />
         </svg>
       </div>
@@ -474,7 +490,7 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(maxwalc) - 1)
             .attr("y2", grdScale(maxwalc) - 1)
-            .attr("stroke", "#F34710")
+            .attr("stroke", "green")
             .attr("stroke-width", "2");
 
           chartArea2
@@ -483,7 +499,7 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(minwalc) - 1)
             .attr("y2", grdScale(minwalc) - 1)
-            .attr("stroke", "#F34710")
+            .attr("stroke", "#f37610")
             .attr("stroke-width", "2");
 
           // chartArea2
@@ -536,7 +552,7 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(maxdalc))
             .attr("y2", grdScale(maxdalc))
-            .attr("stroke", "#F34710")
+            .attr("stroke", "green")
             .attr("stroke-width", "2");
 
           chartArea3
@@ -545,7 +561,7 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(mindalc))
             .attr("y2", grdScale(mindalc))
-            .attr("stroke", "#F34710")
+            .attr("stroke", "#f37610")
             .attr("stroke-width", "2");
           console.log();
         }
@@ -666,6 +682,20 @@
         .text(": Mean Math grade for a drinking level")
         .attr("x", 85)
         .attr("y", 15)
+        .attr("fill", "black");
+
+      legend2
+        .append("text")
+        .text(": Highest Math grade for a drinking level")
+        .attr("x", 85)
+        .attr("y", 45)
+        .attr("fill", "black");
+
+      legend2
+        .append("text")
+        .text(": Lowest Math grade for a drinking level")
+        .attr("x", 85)
+        .attr("y", 75)
         .attr("fill", "black");
     </script>
     <div id="I1">
