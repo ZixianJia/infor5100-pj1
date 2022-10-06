@@ -5,7 +5,7 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <style>
-      body{
+      body {
         margin-top: 60px;
         margin-bottom: 40px;
       }
@@ -21,39 +21,39 @@
         width: 200px;
       }
 
-      #legendLabel{
+      #legendLabel {
         margin-left: 60px;
       }
 
-      #project-heading{
+      #project-heading {
         font-size: 48px;
         margin-left: 60px;
       }
-      p{
+      p {
         margin-left: 60px;
       }
-      h1{
+      h1 {
         margin-left: 20px;
       }
-      #K1{
+      #K1 {
         margin-bottom: 60px;
         margin-left: 40px;
       }
-      #graph1{
+      #graph1 {
         margin-left: 20px;
       }
-      #J1{
+      #J1 {
         margin-bottom: 60px;
         margin-left: 40px;
       }
-      #graph2{
+      #graph2 {
         margin-left: 20px;
       }
-      #I1{
+      #I1 {
         margin-bottom: 60px;
         margin-left: 40px;
       }
-      #graph3{
+      #graph3 {
         margin-left: 20px;
       }
     </style>
@@ -68,12 +68,27 @@
       https://www.kaggle.com/datasets/whenamancodes/alcohol-effects-on-study)
     </p>
     <div id="K1">
-      <h1>Relationship between Portuguese grade and total alcohol consumption</h1>
+      <h1>
+        Relationship between Portuguese grade and total alcohol consumption
+      </h1>
       <div id="graph1">
         <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
-        <p id="legendLabel"><b>Color Legend</b><br>(left: Portuguese grade; right: alcohol consumption)</p>    
-        <svg id="grdcolorLegend" height="50" width="300" style="background: #fff; margin-top:0px; margin-left: 50" ></svg>
-        <svg id="alccolorLegend" height="50" width="300" style="background: #fff; margin-top:0px; margin-left: 20" ></svg>
+        <p id="legendLabel">
+          <b>Color Legend</b><br />(left: Portuguese grade; right: alcohol
+          consumption)
+        </p>
+        <svg
+          id="grdcolorLegend"
+          height="50"
+          width="300"
+          style="background: #fff; margin-top: 0px; margin-left: 50"
+        ></svg>
+        <svg
+          id="alccolorLegend"
+          height="50"
+          width="300"
+          style="background: #fff; margin-top: 0px; margin-left: 20"
+        ></svg>
       </div>
     </div>
     <div id="J1">
@@ -220,8 +235,8 @@
           .domain([grdExtent[1], grdExtent[0]]);
 
         var IgrdColorscale = d3
-        .scaleSequential(d3.interpolateRdYlGn)
-        .domain(grdExtent);
+          .scaleSequential(d3.interpolateRdYlGn)
+          .domain(grdExtent);
 
         //draw lines for grades
         data.forEach((d, i) => {
@@ -238,19 +253,18 @@
 
         //color scale for alc
         var alcColorscale = d3
-            .scaleSequential(d3.interpolateReds)
-            .domain([alcExtent[1], alcExtent[0]]);
+          .scaleSequential(d3.interpolateReds)
+          .domain([alcExtent[1], alcExtent[0]]);
 
         var IalcColorscale = d3
-        .scaleSequential(d3.interpolateReds)
-        .domain(alcExtent);
+          .scaleSequential(d3.interpolateReds)
+          .domain(alcExtent);
 
         //sort alc level from lowest to highest
         data.sort((a, b) => d3.descending(a["Talc"], b["Talc"]));
 
         //draw lines for alc
         data.forEach((d, i) => {
-
           chartArea
             .append("line")
             .attr("x1", stdScale(i))
@@ -268,61 +282,64 @@
       });
     </script>
 
-  <script>
-    function drawLegend(legendSelector, legendColorScale) {
+    <script>
+      function drawLegend(legendSelector, legendColorScale) {
+        //  Color Legend code credit to Prof. Rz !!!
 
-    //  Color Legend code credit to Prof. Rz !!!
+        const offsets = { width: 10, top: 2, bottom: 24 };
+        const stepSize = 4;
+        const minMaxExtendPercent = 0;
 
-    const offsets = { width: 10,
-                      top: 2,
-                      bottom: 24 };
-    const stepSize = 4;
-    const minMaxExtendPercent = 0;
+        const legend = d3.select(legendSelector);
+        const legendHeight = legend.attr("height");
+        const legendBarWidth = legend.attr("width") - offsets.width * 2;
+        const legendMinMax = d3.extent(legendColorScale.domain());
+        const minMaxExtension =
+          (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
+        const barHeight = legendHeight - offsets.top - offsets.bottom;
 
-    const legend = d3.select(legendSelector);
-    const legendHeight = legend.attr("height");
-    const legendBarWidth = legend.attr("width") - (offsets.width * 2);
-    const legendMinMax = d3.extent(
-      legendColorScale.domain());
-    const minMaxExtension = (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
-    const barHeight = legendHeight - offsets.top - offsets.bottom;
+        let barScale = d3
+          .scaleLinear()
+          .domain([
+            legendMinMax[0] - minMaxExtension,
+            legendMinMax[1] + minMaxExtension,
+          ])
+          .range([0, legendBarWidth]);
+        let barAxis = d3.axisBottom(barScale);
 
-    let barScale = d3.scaleLinear().domain([legendMinMax[0]-minMaxExtension,
-                                              legendMinMax[1]+minMaxExtension])
-                                  .range([0,legendBarWidth]);
-    let barAxis = d3.axisBottom(barScale);
+        let bar = legend
+          .append("g")
+          .attr("class", "legend colorbar")
+          .attr("transform", `translate(${offsets.width},${offsets.top})`);
 
-    let bar = legend.append("g")
-                    .attr("class", "legend colorbar")
-                    .attr("transform", `translate(${offsets.width},${offsets.top})`)
+        // have a continuous / roundable scale
+        if (legendColorScale.hasOwnProperty("rangeRound")) {
+          for (let i = 0; i < legendBarWidth; i = i + stepSize) {
+            let center = i + stepSize / 2;
+            let dataCenter = barAxis.scale().invert(center);
 
-    // have a continuous / roundable scale
-    if (legendColorScale.hasOwnProperty('rangeRound')) {
+            if (dataCenter < legendMinMax[1]) {
+              bar
+                .append("rect")
+                .attr("x", i)
+                .attr("y", 0)
+                .attr("width", stepSize)
+                .attr("height", barHeight)
+                .style("fill", legendColorScale(dataCenter));
+            }
+          }
+        }
 
-      for (let i=0; i<legendBarWidth; i=i+stepSize) {
-
-        let center = i+(stepSize/2);
-        let dataCenter = barAxis.scale().invert( center );
-
-        if ( dataCenter < legendMinMax[1] ) {
-        bar.append("rect")
-            .attr("x", i)
-            .attr("y", 0)
-            .attr("width", stepSize)
-            .attr("height",barHeight)
-            .style("fill", legendColorScale( dataCenter ) );
-        };
-      }
-    }
-
-    //draw legend labels
-    legend.append("g")
+        //draw legend labels
+        legend
+          .append("g")
           .attr("class", "legend axis")
-          .attr("transform",`translate(${offsets.width},${offsets.top+barHeight+5})`)
+          .attr(
+            "transform",
+            `translate(${offsets.width},${offsets.top + barHeight + 5})`
+          )
           .call(barAxis);
-
-    }
-
+      }
     </script>
 
     <script>
@@ -384,7 +401,7 @@
             .attr("r", 4)
             .attr("opacity", 0.5)
             .attr("index", i)
-            .style("fill", "steelblue");
+            .style("fill", "#F2994A");
 
           chartArea3
             .append("circle")
@@ -444,17 +461,19 @@
             .append("line")
             .attr("x1", alcScale2(i) - 10)
             .attr("x2", alcScale2(i) + 10)
-            .attr("y1", grdScale(maxwalc))
-            .attr("y2", grdScale(maxwalc))
-            .attr("stroke", "#F34710");
+            .attr("y1", grdScale(maxwalc) - 1)
+            .attr("y2", grdScale(maxwalc) - 1)
+            .attr("stroke", "#F34710")
+            .attr("stroke-width", "2");
 
           chartArea2
             .append("line")
             .attr("x1", alcScale2(i) - 10)
             .attr("x2", alcScale2(i) + 10)
-            .attr("y1", grdScale(minwalc))
-            .attr("y2", grdScale(minwalc))
-            .attr("stroke", "#F34710");
+            .attr("y1", grdScale(minwalc) - 1)
+            .attr("y2", grdScale(minwalc) - 1)
+            .attr("stroke", "#F34710")
+            .attr("stroke-width", "2");
 
           // chartArea2
           //   .append("rect")
@@ -471,7 +490,7 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(avgwalc) - 1)
             .attr("y2", grdScale(avgwalc) - 1)
-            .attr("stroke", "red")
+            .attr("stroke", "#724FFF")
             .attr("stroke-width", "2");
 
           // chartArea3
@@ -497,7 +516,7 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(avgdalc) - 1)
             .attr("y2", grdScale(avgdalc) - 1)
-            .attr("stroke", "red")
+            .attr("stroke", "#724FFF")
             .attr("stroke-width", "2");
 
           chartArea3
@@ -506,7 +525,8 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(maxdalc))
             .attr("y2", grdScale(maxdalc))
-            .attr("stroke", "#F34710");
+            .attr("stroke", "#F34710")
+            .attr("stroke-width", "2");
 
           chartArea3
             .append("line")
@@ -514,8 +534,8 @@
             .attr("x2", alcScale2(i) + 10)
             .attr("y1", grdScale(mindalc))
             .attr("y2", grdScale(mindalc))
-            .attr("stroke", "#F34710");
-
+            .attr("stroke", "#F34710")
+            .attr("stroke-width", "2");
           console.log();
         }
 
@@ -632,13 +652,31 @@
     </script>
     <div id="I1">
       <h1>
-        Grade and study time for students with different total alcohol consumption
+        Grade and study time for students with different total alcohol
+        consumption
       </h1>
       <div id="graph3">
-        <svg id="chartI1" height="500" width="550" style="margin-left: 20"></svg>
-        <svg id="chartI2" height="500" width="550" style="margin-left: 20"></svg>
-        <p id="legendLabel"><b>Color Legend:</b><br>(Student total alcohol consumption)</p>
-        <svg id="alcLegend" height="50" width="300" style="background: #fff; margin-bottom:40px; margin-left: 50px" ></svg>
+        <svg
+          id="chartI1"
+          height="500"
+          width="550"
+          style="margin-left: 20"
+        ></svg>
+        <svg
+          id="chartI2"
+          height="500"
+          width="550"
+          style="margin-left: 20"
+        ></svg>
+        <p id="legendLabel">
+          <b>Color Legend:</b><br />(Student total alcohol consumption)
+        </p>
+        <svg
+          id="alcLegend"
+          height="50"
+          width="300"
+          style="background: #fff; margin-bottom: 40px; margin-left: 50px"
+        ></svg>
       </div>
     </div>
     <script>
@@ -803,7 +841,7 @@
           .attr("class", "x label")
           .attr("text-anchor", "middle")
           .attr("x", chartWidthI / 2 + 25)
-          .attr("y", height-10)
+          .attr("y", height - 10)
           .text("Weekly study time");
       });
 
@@ -947,7 +985,7 @@
           .attr("class", "x label")
           .attr("text-anchor", "middle")
           .attr("x", chartWidthI / 2 + 25)
-          .attr("y", height-10)
+          .attr("y", height - 10)
           .text("Weekly study time");
 
         drawLegend("#alcLegend", colorScaleI);
