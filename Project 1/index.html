@@ -476,5 +476,325 @@
           .text("Math grades (0-20)");
       });
     </script>
+    <h1>
+      Grade and study time for students with different total alcohol consumption
+    </h1>
+    <p>Legend deng hui zuo</p>
+    <svg id="chartI1" height="600" width="600" style="margin-left: 20"></svg>
+    <svg id="chartI2" height="600" width="600" style="margin-left: 20"></svg>
+    <script>
+      const svgI1 = d3.select("svg#chartI1");
+      const svgI2 = d3.select("svg#chartI2");
+
+      const widthI = svgI1.attr("width");
+      const heightI = svgI1.attr("height");
+      const marginI = { top: 20, right: 50, bottom: 50, left: 50 };
+      const chartWidthI = widthI - margin.left - margin.right;
+      const chartHeightI = heightI - margin.top - margin.bottom;
+
+      let annotationsI1 = svgI1.append("g").attr("id", "annotations");
+      let chartAreaI1 = svgI1
+        .append("g")
+        .attr("id", "plots")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      let annotationsI2 = svgI2.append("g").attr("id", "annotations");
+      let chartAreaI2 = svgI2
+        .append("g")
+        .attr("id", "plots")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      //import Portuguese dataset
+      d3.csv("Portuguese.csv", d3.autoType).then((data) => {
+        data.forEach((d) => {
+          d["avgGrd"] = (d["G1"] + d["G2"] + d["G3"]) / 3;
+          d["Talc"] = d["Walc"] + d["Dalc"];
+        });
+
+        //alc scale
+        const alcExtent = d3.extent([2, 10]);
+
+        let colorScaleI = d3
+          .scaleSequential()
+          .domain(alcExtent)
+          .interpolator(d3.interpolatePuRd);
+
+        console.log(data);
+
+        const studytimeExtent = d3.extent([1, 4]);
+
+        let studytimeScale = d3
+          .scaleLinear()
+          // .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
+          .domain(studytimeExtent)
+          .range([10, chartWidth2 - 10]);
+        
+        let x = d3
+          .scalePoint()
+          .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
+          .range([10, chartWidth2 - 10]);
+
+        //student scale
+        const stdExtent2 = d3.extent([0, data.length]);
+        let stdScale2 = d3
+          .scaleLinear()
+          .domain(stdExtent2)
+          .range([0, chartWidth2]);
+
+        //grade scale
+        const grdExtent2 = d3.extent([0, 20]);
+        let grdScale = d3
+          .scaleLinear()
+          .domain(grdExtent2)
+          .range([chartHeight2, 0]);
+
+          
+        //   // X axis
+        // var x = d3.scaleBand()
+        //   .range([ 0, chartWidth2 ])
+        //   .domain(data.map(function(d) { return d.studytime; }))
+        //   .padding(0.2);
+        // chartAreaI1.append("g")
+        //   .attr("transform", "translate(0," + chartHeight2 + ")")
+        //   .call(d3.axisBottom(x))
+        //   .selectAll("text")
+        //     .attr("transform", "translate(-10,0)rotate(-45)")
+        //     .style("text-anchor", "end");
+
+        // // Add Y axis
+        // var y = d3.scaleLinear()
+        //   .domain(grdExtent2)
+        //   .range([ chartHeight2, 0]);
+        // chartAreaI1.append("g")
+        //   .call(d3.axisLeft(y));
+
+        // // Bars
+        // chartAreaI1.selectAll("mybar")
+        //   .data(data)
+        //   .enter()
+        //   .append("rect")
+        //     .attr("x", function(d) { return x(d.studytime); })
+        //     .attr("y", function(d) { return y(d.avgGrd); })
+        //     .attr("width", x.bandwidth())
+        //     .attr("height", function(d) { return height - y(d.avgGrd); })
+        //     .attr("fill", "#69b3a2")
+        
+        data.forEach((d, i) => {
+          chartAreaI1
+            .append("circle")
+            .attr("cx", studytimeScale(d["studytime"]))
+            .attr("cy", grdScale(d["avgGrd"]))
+            .attr("r", 5)
+            .attr("opacity", 0.6)
+            .attr("index", i)
+            .style("fill", colorScaleI(d["Talc"]));
+
+        });
+
+        // //axis and gridlines
+        let leftAxis = d3.axisLeft(grdScale);
+        annotationsI1
+          .append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftAxis);
+
+        let bottomAxis = d3.axisBottom(x);
+        annotationsI1
+          .append("g")
+          .attr("class", "x axis")
+          .attr("transform", `translate(${margin.left},${chartHeight2 + 20})`)
+          .call(bottomAxis);
+
+        let HorizontalGridlinesI = d3
+          .axisLeft(grdScale)
+          .tickSize(-chartWidth2 - 10)
+          .tickFormat("");
+        annotationsI1
+          .append("g")
+          .attr("class", "gridlines")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(HorizontalGridlinesI);
+
+        let VerticalGridlinesI = d3
+          .axisBottom(x)
+          .tickSize(-chartHeight2 - 10)
+          // .tickSize(4)
+          .tickFormat("");
+
+        annotationsI1
+          .append("g")
+          .attr("class", "gridlines")
+          .attr(
+            "transform",
+            `translate(${margin.left},${chartHeight2 + margin.top})`
+          )
+          .call(VerticalGridlinesI);
+        
+        svgI1
+          .append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "middle")
+          .attr("y", 0)
+          .attr("x", 0 - chartHeight2 / 2)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Portuguese grades (0-20)");
+        
+        svgI1
+          .append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "middle")
+          .attr("x", chartWidthI/2)
+          .attr("y", chartHeightI-30)
+          .text("Weekly study time");
+      });
+
+      //import Math dataset
+      d3.csv("Maths.csv", d3.autoType).then((data) => {
+        data.forEach((d) => {
+          d["avgGrd"] = (d["G1"] + d["G2"] + d["G3"]) / 3;
+          d["Talc"] = d["Walc"] + d["Dalc"];
+        });
+
+        //alc scale
+        const alcExtent = d3.extent([2, 10]);
+
+        let colorScaleI = d3
+          .scaleSequential()
+          .domain(alcExtent)
+          .interpolator(d3.interpolatePuRd);
+
+        console.log(data);
+
+        const studytimeExtent = d3.extent([1, 4]);
+
+        let studytimeScale = d3
+          .scaleLinear()
+          // .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
+          .domain(studytimeExtent)
+          .range([10, chartWidth2 - 10]);
+        
+        let x = d3
+          .scalePoint()
+          .domain(["< 2hrs","2 - 5hrs","5 - 10hrs","> 10hrs"])
+          .range([10, chartWidth2 - 10]);
+
+        //student scale
+        const stdExtent2 = d3.extent([0, data.length]);
+        let stdScale2 = d3
+          .scaleLinear()
+          .domain(stdExtent2)
+          .range([0, chartWidth2]);
+
+        //grade scale
+        const grdExtent2 = d3.extent([0, 20]);
+        let grdScale = d3
+          .scaleLinear()
+          .domain(grdExtent2)
+          .range([chartHeight2, 0]);
+
+          
+        //   // X axis
+        // var x = d3.scaleBand()
+        //   .range([ 0, chartWidth2 ])
+        //   .domain(data.map(function(d) { return d.studytime; }))
+        //   .padding(0.2);
+        // chartAreaI1.append("g")
+        //   .attr("transform", "translate(0," + chartHeight2 + ")")
+        //   .call(d3.axisBottom(x))
+        //   .selectAll("text")
+        //     .attr("transform", "translate(-10,0)rotate(-45)")
+        //     .style("text-anchor", "end");
+
+        // // Add Y axis
+        // var y = d3.scaleLinear()
+        //   .domain(grdExtent2)
+        //   .range([ chartHeight2, 0]);
+        // chartAreaI1.append("g")
+        //   .call(d3.axisLeft(y));
+
+        // // Bars
+        // chartAreaI1.selectAll("mybar")
+        //   .data(data)
+        //   .enter()
+        //   .append("rect")
+        //     .attr("x", function(d) { return x(d.studytime); })
+        //     .attr("y", function(d) { return y(d.avgGrd); })
+        //     .attr("width", x.bandwidth())
+        //     .attr("height", function(d) { return height - y(d.avgGrd); })
+        //     .attr("fill", "#69b3a2")
+        
+        data.forEach((d, i) => {
+          chartAreaI2
+            .append("circle")
+            .attr("cx", studytimeScale(d["studytime"]))
+            .attr("cy", grdScale(d["avgGrd"]))
+            .attr("r", 5)
+            .attr("opacity", 0.6)
+            .attr("index", i)
+            .style("fill", colorScaleI(d["Talc"]));
+
+        });
+
+        // //axis and gridlines
+        let leftAxis = d3.axisLeft(grdScale);
+        annotationsI2
+          .append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftAxis);
+
+        let bottomAxis = d3.axisBottom(x);
+        annotationsI2
+          .append("g")
+          .attr("class", "x axis")
+          .attr("transform", `translate(${margin.left},${chartHeight2 + 20})`)
+          .call(bottomAxis);
+
+        let HorizontalGridlinesI = d3
+          .axisLeft(grdScale)
+          .tickSize(-chartWidth2 - 10)
+          .tickFormat("");
+        annotationsI2
+          .append("g")
+          .attr("class", "gridlines")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(HorizontalGridlinesI);
+
+        let VerticalGridlinesI = d3
+          .axisBottom(x)
+          .tickSize(-chartHeight2 - 10)
+          // .tickSize(4)
+          .tickFormat("");
+
+        annotationsI2
+          .append("g")
+          .attr("class", "gridlines")
+          .attr(
+            "transform",
+            `translate(${margin.left},${chartHeight2 + margin.top})`
+          )
+          .call(VerticalGridlinesI);
+        
+        svgI2
+          .append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "middle")
+          .attr("y", 0)
+          .attr("x", 0 - chartHeight2 / 2)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Math grades (0-20)");
+        
+        svgI2
+          .append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "middle")
+          .attr("x", chartWidthI/2)
+          .attr("y", chartHeightI-30)
+          .text("Weekly study time");
+      });
+    </script>
   </body>
 </html>
