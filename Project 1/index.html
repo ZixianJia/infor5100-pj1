@@ -17,6 +17,10 @@
         stroke: none;
       }
 
+      ul {
+        margin-left: 60px;
+      }
+
       #slider {
         width: 200px;
       }
@@ -61,7 +65,7 @@
   <body>
     <h1 id="project-heading">Alcohol Effects On Study</h1>
     <p>
-      <b>Kehui Guo (kg357), Zixian Jia (zj36), Yan Zhu(yz2477)</b><br />
+      <b>Kehui Guo (kg357), Zixian Jia (zj36), Yan Zhu (yz2477)</b><br />
       Drinking has been a big and common issue for students globally. Our
       project aims to visualize the effect of students alcohol consumption on
       their studying activities and grades at two Portuguese schools. (source:
@@ -73,9 +77,11 @@
       </h1>
       <div id="graph1">
         <svg id="chart" height="500" width="1000" style="margin-left: 20"></svg>
-        <p id="legendLabel">
-          <b>Color Legend</b><br />(left: Portuguese grade; right: alcohol
-          consumption)
+        <p id="legendLabel"><b>Color Legend</b><br>
+          <ul>
+            <li>Left: Portuguese grade. Red indicates lowest grade, neutral indicates average grade, green indicates highest grade</li>
+            <li>Right: total alcohol consumption. Higher saturation of red indicates higher total consumption of alcohol.</li>
+          </ul>
         </p>
         <svg
           id="grdcolorLegend"
