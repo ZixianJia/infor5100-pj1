@@ -1,0 +1,320 @@
+<html><head>
+    <title>INFO 5100 - Project 2</title>
+    
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script src="https://d3js.org/topojson.v3.min.js"></script>
+    
+    <style>
+    
+      h1 {
+        text-align: center;
+      }
+    
+      .country {
+        fill: #ebd7cf;
+      }
+    
+      .outline {
+        fill: none;
+        stroke: black;
+        stroke-width: 1px;
+      }
+      .graticule {
+          fill: none;
+          stroke: lightgrey;
+          stroke-width: 0.5px;
+      }
+      .tooltip {
+          pointer-events: none;
+      }
+    
+      g {
+        font-size:8;
+      }
+    
+    
+    </style>
+    </head>
+    
+    <body>
+      <p><h1>Top 100 Richest People in the World</h1></p>
+      <svg id="choropleth" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
+      <svg id="colorLegend" height="100" width="1000" style="background: #fff; margin-top:30px; margin-right:auto; margin-left:auto" ></svg>
+    
+      <script>
+        const svg = d3.select("#choropleth");
+        const width = svg.attr("width");
+        const height = svg.attr("height");
+        const margin = { top: 20, right: 20, bottom: 20, left:20};
+        const mapWidth = width - margin.left - margin.right;
+        const mapHeight = height - margin.top - margin.bottom;
+        const map = svg.append("g")
+                        .attr("transform","translate("+margin.left+","+margin.top+")");
+    
+    
+        const requestData = async () => {
+    
+          // load dataset
+          let people = await d3.csv("top_100_richest.csv");
+          let gdp = await d3.csv("GDP.csv");
+          let worldmap = await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
+    
+          console.log(people);
+          console.log(worldmap);
+    
+          // draw world map
+          var countries = topojson.feature(worldmap, worldmap.objects.countries);
+          var countriesMesh = topojson.mesh(worldmap, worldmap.objects.countries);
+          var projection = d3.geoNaturalEarth1().fitSize([mapWidth, mapHeight], countries);
+          var path = d3.geoPath().projection(projection);
+          // console.log(countries);
+          // console.log(countriesMesh);
+    
+          let viewport = map.append("g");
+    
+          let graticule = d3.geoGraticule10();
+              // console.log(graticule);
+              viewport.append("path").attr("class","graticule").attr("d", path(graticule));
+    
+          let countryPaths = viewport.selectAll("path.country").data(countries.features)
+                           .join("path")
+                           .attr("class", "country")
+                           .attr("note", d => d.id)  // debugging
+                           .attr("d", path)
+                           .on('mouseover',  mouseEntersState )
+                           .on('mouseout',  mouseLeavesState );
+    
+          viewport.append("path").datum(countriesMesh)
+             .attr("class","outline")
+             .attr("d", path);
+    
+    
+          // use 2018 gdp for coloring countries
+          // changing column names of 'country_code' & 'country' & 'gdp_2018'
+          gdp.forEach (d => {
+            d['country_code'] = d['Country Code'];
+            d['country_name'] = d['Country '];
+            d['gdp_2018'] = d['2018'];
+          });
+          console.log(gdp);
+    
+    
+          let countryGDP = {}
+          let countryName = {}
+          gdp.forEach (row => {
+            countryGDP[row.country_name] = Number(row.gdp_2018);
+            countryName[row.country_name] = row.country_name;
+          });
+          console.log(countryGDP);
+          console.log(countryName);
+    
+          // create quantiles colorscale with 2018 gdp, null value has default color #ebd7cf
+          const minMax = d3.extent(Object.values(countryGDP))
+          // console.log(minMax);
+    
+          const colorScale = d3.scaleQuantile()      // LLLLLLLLL
+                             .domain(Object.values(countryGDP))
+                             .range(["#ffda5c","#fa8a55","#d2204b","#921a6d","#350d5f"]);
+    
+          viewport.selectAll(".country")
+             .style("fill", d => colorScale( countryGDP[d.properties.name]) );
+    
+          // use lecture code to draw legend
+          drawLegend("#colorLegend", colorScale);
+    
+    
+          // hover over
+          let tooltipWidth = 120;
+          let tooltipHeight = 40;
+    
+          // tooltip and annotations
+          let momesh =  viewport.append("path")
+                           .attr("class","mouseover outline")
+                           .style("stroke", "black")
+                           .style("stroke-width", 2)
+                           .attr("d", "");
+    
+           let tooltip = viewport.append("g")
+                                .attr("class","tooltip")
+                                .attr("visibility","hidden");
+               tooltip.append("rect")
+                      .attr("fill", "black")
+                      .attr("opacity", 0.9)
+                      .attr("x", -tooltipWidth / 2.0)
+                      .attr("y", 0)
+                      .attr("width",tooltipWidth)
+                      .attr("height",tooltipHeight)
+               let txt = tooltip.append("text")
+                                .attr("fill", "#ffffff")
+                                .attr("text-anchor","middle")
+                                .attr("alignment-baseline","hanging")
+                                .attr("x", 0)
+                                .attr("y", 10);
+               let txt2 = tooltip.append("text")
+                                .attr("fill", "#ffffff")
+                                .attr("text-anchor","middle")
+                                .attr("alignment-baseline","hanging")
+                                .attr("x", 0)
+                                .attr("y", 22);
+    
+              function mouseEntersState() {
+                    // make tooltip visible
+                    tooltip.style("visibility","visible")
+    
+                    // find the state SVG element and add stroke
+                    let country = d3.select(this);
+                    let countryID = country.datum().id;
+                    let name = country.datum().properties.name;
+                    txt.text(countryName[ name ]);
+                    txt2.text(countryGDP[  name  ]);
+                    let bounds = path.bounds( country.datum() );
+                    let xPos = (bounds[0][0]+bounds[1][0])/2.0;
+                    let yPos = bounds[1][1] - 15;
+                    tooltip.attr("transform",`translate(${xPos},${yPos})`);
+    
+                    var mo = topojson.mesh(worldmap, worldmap.objects.countries, function(a, b) { return a.id === countryID || b.id === countryID; });
+    
+                    momesh.datum(mo).attr("d", path)
+            };
+            function mouseLeavesState() {
+    
+             // Hide when you leave a state
+             tooltip.style("visibility","hidden");
+    
+             let country = d3.select(this);
+    
+             momesh.attr("d", "");
+    
+            }
+    
+            // zoom map
+            var zoom = d3.zoom()
+                      .scaleExtent([1,10])
+                      .translateExtent([[-50,-50],[mapWidth+50,mapHeight+50]])
+                      .on("zoom", mapZoomed);
+    
+            map.call(zoom);
+            map.call(zoom.trviewportansform, d3.zoomIdentity);
+            function mapZoomed({transform}) {
+              viewport.attr("transform", transform.toString() );
+    
+              viewport.select(".outline")
+                      .style("stroke-width", 1 / transform.k);
+          }
+    
+    
+    
+        };
+    
+        //request data
+        requestData();
+    
+      </script>
+    
+    
+    
+    
+    
+    
+      <script>
+        function drawLegend(legendSelector, legendColorScale) {
+          //  color Legend code credit to Prof. Rz !!!
+            const offsets = { width: 30,
+                              top: 4,
+                              bottom: 24 };
+            const stepSize = 4;
+            const minMaxExtendPercent = 0;
+    
+            const legend = d3.select(legendSelector);
+            const legendHeight = legend.attr("height");
+            const legendBarWidth = legend.attr("width") - (offsets.width * 2);
+            const legendMinMax = d3.extent(legendColorScale.domain());
+                        // recover the min and max values from most kinds of numeric scales
+            const minMaxExtension = (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
+            const barHeight = legendHeight - offsets.top - offsets.bottom;
+    
+            // In this case the "data" are pixels, and we get numbers to use in colorScale
+            // Use this to make axis labels
+            let barScale = d3.scaleLinear().domain([legendMinMax[0]-minMaxExtension,
+                                                      legendMinMax[1]+minMaxExtension])
+                                           .range([0,legendBarWidth]);
+            let barAxis = d3.axisBottom(barScale);
+    
+            // Place for bar slices to live
+            let bar = legend.append("g")
+                            .attr("class", "legend colorbar")
+                            .attr("transform", `translate(${offsets.width},${offsets.top})`)
+    
+            // ****** SWITCHES FOR DIFFERENT SCALE TYPES ******
+    
+            // Check if we're using a binning scale - if so, we make blocks of color
+            if (legendColorScale.hasOwnProperty('thresholds') || legendColorScale.hasOwnProperty('quantiles')) {
+              // Get the thresholds
+              let thresholds = [];
+              if (legendColorScale.hasOwnProperty('thresholds')) { thresholds = legendColorScale.thresholds() }
+              else { thresholds = legendColorScale.quantiles() }
+    
+              const barThresholds = [legendMinMax[0], ...thresholds, legendMinMax[1]];
+    
+              barAxis.tickValues(barThresholds);
+    
+              for (let i=0; i<barThresholds.length-1; i++) {
+                let dataStart = barThresholds[i];
+                let dataEnd = barThresholds[i+1];
+                let pixelStart = barAxis.scale()(dataStart);
+                let pixelEnd = barAxis.scale()(dataEnd);
+    
+                bar.append("rect")
+                   .attr("x", pixelStart)
+                   .attr("y", 0)
+                   .attr("width", pixelEnd - pixelStart )
+                   .attr("height", barHeight)
+                   .style("fill", legendColorScale( (dataStart + dataEnd) / 2.0 ) );
+              }
+            }
+            else if (legendColorScale.hasOwnProperty('rangeRound')) {
+              for (let i=0; i<legendBarWidth; i=i+stepSize) {
+    
+                let center = i+(stepSize/2);
+                let dataCenter = barAxis.scale().invert( center );
+    
+                if ( dataCenter < legendMinMax[0] ) {
+                  bar.append("rect")
+                     .attr("x", i)
+                     .attr("y", 0)
+                     .attr("width", stepSize)
+                     .attr("height",barHeight)
+                     .style("fill", legendColorScale( legendMinMax[0] ) );
+                 }
+                 // within normal scale bounds
+                 else if ( dataCenter < legendMinMax[1] ) {
+                   bar.append("rect")
+                      .attr("x", i)
+                      .attr("y", 0)
+                      .attr("width", stepSize)
+                      .attr("height",barHeight)
+                      .style("fill", legendColorScale( dataCenter ) );
+                 }
+                 // above normal scale bounds
+                 else {
+                   bar.append("rect")
+                      .attr("x", i)
+                      .attr("y", 0)
+                      .attr("width", stepSize)
+                      .attr("height",barHeight)
+                      .style("fill", legendColorScale( legendMinMax[1] ) );
+                 }
+              }
+            };
+    
+            // Finally, draw legend labels
+            legend.append("g")
+                  .attr("class", "legend axis")
+                  .attr("transform",`translate(${offsets.width},${offsets.top+barHeight+5})`)
+                  .call(barAxis);
+        }
+      </script>
+    
+    </body>
+    </html>
+    
