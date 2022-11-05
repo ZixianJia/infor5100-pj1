@@ -1,1 +1,1 @@
-# infor5100-pj1
+# info5100-projects
