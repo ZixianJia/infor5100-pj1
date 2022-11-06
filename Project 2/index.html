@@ -165,8 +165,15 @@
                     let country = d3.select(this);
                     let countryID = country.datum().id;
                     let name = country.datum().properties.name;
+                    let count = 0;
+                    people.forEach (d => {
+                      if (d['nationality'] == name) { count = count + 1 }
+
+                    });
+                    
+                    
                     txt.text(countryName[ name ]);
-                    txt2.text(countryGDP[  name  ]);
+                    txt2.text("Number of billionaires: " + count);
                     let bounds = path.bounds( country.datum() );
                     let xPos = (bounds[0][0]+bounds[1][0])/2.0;
                     let yPos = bounds[1][1] - 15;
@@ -202,7 +209,7 @@
                       .style("stroke-width", 1 / transform.k);
           }
     
-    
+          
     
         };
     
@@ -232,7 +239,7 @@
                         // recover the min and max values from most kinds of numeric scales
             const minMaxExtension = (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
             const barHeight = legendHeight - offsets.top - offsets.bottom;
-    
+            
             // In this case the "data" are pixels, and we get numbers to use in colorScale
             // Use this to make axis labels
             let barScale = d3.scaleLinear().domain([legendMinMax[0]-minMaxExtension,
