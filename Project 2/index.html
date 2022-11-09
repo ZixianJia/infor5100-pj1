@@ -40,9 +40,7 @@
       <p><h1>Top 100 Richest People in the World</h1></p>
       <svg id="choropleth" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
       <svg id="colorLegend" height="100" width="1000" style="background: #fff; margin-top:30px; margin-right:auto; margin-left:auto" ></svg>
-      <svg id="barchart" height="500" width="1000" style="background: #ffffff; margin-top:20px">
-        <text id="label" x="900" y="300"  text-anchor="end" alignment-baseline="hanging"></text>
-      </svg>
+      <svg id="barchart" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
 
       <script>
         const svg = d3.select("#choropleth");
@@ -346,8 +344,43 @@
 
           let rankScale = d3.scaleLinear().domain([1,50]).range([10,barwidth-10]);
           let worthScale = d3.scaleLinear().domain([0,240]).range([0,barheight-10]);
+          let panelWidth = 250;
+          let panelHeight = 250;
 
-
+          let panel = view.append("g")
+                                .attr("class","tooltip")
+                                .attr("visibility","hidden");
+               panel.append("rect")
+                      .attr("fill", "white")
+                      .attr("opacity", 0.9)
+                      .attr("x", -panelWidth / 2.0)
+                      .attr("y", 0)
+                      .attr("width",panelWidth)
+                      .attr("height",panelHeight)
+               let txt = panel.append("text")
+                                .attr("fill", "black")
+                                .attr("text-anchor","middle")
+                                .attr("alignment-baseline","hanging")
+                                .attr("x", 0)
+                                .attr("y", 10)
+                                .attr("font-size", "25px");
+               let txt2 = panel.append("text")
+                                .attr("fill", "black")
+                                .attr("text-anchor","middle")
+                                .attr("alignment-baseline","hanging")
+                                .attr("x", 0)
+                                .attr("y", 40)
+                                .attr("font-size", "20px");
+                let txt3 = panel.append("text")
+                                .attr("fill", "black")
+                                .attr("text-anchor","middle")
+                                .attr("alignment-baseline","hanging")
+                                .attr("x", 0)
+                                .attr("y", 60)
+                                .attr("font-size", "20px");
+          
+          
+          
           people.forEach((d) => {
               view.append('line')
                 .attr("x1", rankScale(d['rank']))
@@ -358,23 +391,32 @@
                 .style("stroke-width", "15px")
                 .on("mouseover", function(){
                 
+                panel.style("visibility","visible")
                 d3.select(this)
                 .transition().duration(150)
                 .style("stroke-width", "20px")
                 .style("stroke", "black")
 
                 let name = d['name'];
-                d3.select("#label").text(name);
+                let net = d['net_worth'];
+                let from = d['nationality'];
+                
+                txt.text(name+":");
+                txt2.text("$"+net+"Billion");
+                txt3.text('From '+from);
+
+                let xPos = 800;
+                let yPos = 40;
+                panel.attr("transform",`translate(${xPos},${yPos})`);
 
             })
             .on("mouseout", function () {
+                
+              panel.style("visibility","hidden");
                 d3.select(this)
                 .transition().duration(150)
                 .style("stroke", "grey")
                 .style("stroke-width", "15px");
-
-                d3.select("#label").text("");
-
 
             });
 
