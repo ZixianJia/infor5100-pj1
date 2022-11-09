@@ -40,7 +40,10 @@
       <p><h1>Top 100 Richest People in the World</h1></p>
       <svg id="choropleth" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
       <svg id="colorLegend" height="100" width="1000" style="background: #fff; margin-top:30px; margin-right:auto; margin-left:auto" ></svg>
-    
+      <svg id="barchart" height="500" width="1000" style="background: #ffffff; margin-top:20px">
+        <text id="label" x="900" y="300"  text-anchor="end" alignment-baseline="hanging"></text>
+      </svg>
+
       <script>
         const svg = d3.select("#choropleth");
         const width = svg.attr("width");
@@ -320,6 +323,67 @@
                   .attr("transform",`translate(${offsets.width},${offsets.top+barHeight+5})`)
                   .call(barAxis);
         }
+      </script>
+
+      <script>
+        const view = d3.select("svg#barchart");
+        const barwidth = view.attr("width");
+        const barheight = view.attr("height");
+        const barmargin = {top: 10, right: 10, bottom: 50, left: 50};
+        const barchartWidth = barwidth - barmargin.left - barmargin.right;
+        const barchartHeight = barheight - barmargin.top - barmargin.bottom;
+
+        const requestDatabar = async () => {
+          let people = await d3.csv("top_100_richest.csv");
+          let gdp = await d3.csv("GDP.csv");
+
+          people.forEach (d => {
+            d['rank'] = Number(d['rank']);
+            d['net_worth'] = Number(d['net_worth'].replace("$", "").replace(" Billion", ""));  
+          });
+
+          console.log(people);
+
+          let rankScale = d3.scaleLinear().domain([1,50]).range([10,barwidth-10]);
+          let worthScale = d3.scaleLinear().domain([0,240]).range([0,barheight-10]);
+
+
+          people.forEach((d) => {
+              view.append('line')
+                .attr("x1", rankScale(d['rank']))
+                .attr("x2", rankScale(d['rank']))
+                .attr("y1", barheight-10)
+                .attr("y2", barheight - worthScale(d['net_worth']))
+                .style("stroke", "grey")
+                .style("stroke-width", "15px")
+                .on("mouseover", function(){
+                
+                d3.select(this)
+                .transition().duration(150)
+                .style("stroke-width", "20px")
+                .style("stroke", "black")
+
+                let name = d['name'];
+                d3.select("#label").text(name);
+
+            })
+            .on("mouseout", function () {
+                d3.select(this)
+                .transition().duration(150)
+                .style("stroke", "grey")
+                .style("stroke-width", "15px");
+
+                d3.select("#label").text("");
+
+
+            });
+
+          });
+
+
+        };
+        requestDatabar();
+
       </script>
     
     </body>
