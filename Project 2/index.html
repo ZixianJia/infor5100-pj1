@@ -46,7 +46,7 @@
         padding-right: 20px;
       }
 
-      #choropleth {
+      #panel {
       }
 
       .header {
@@ -273,7 +273,7 @@
             .attr("y", 20)
             .attr("width", tooltipWidth)
             .attr("height", tooltipHeight);
-          let txt = tooltip
+          let tooltiptxt = tooltip
             .append("text")
             .attr("fill", "#ffffff")
             .attr("text-anchor", "middle")
@@ -281,7 +281,7 @@
             .attr("font-size", tooltipfontsize)
             .attr("x", 0)
             .attr("y", tooltipfontsize * 2);
-          let txt2 = tooltip
+          let tooltiptxt2 = tooltip
             .append("text")
             .attr("fill", "#ffffff")
             .attr("text-anchor", "middle")
@@ -309,8 +309,8 @@
               }
             });
 
-            txt.text(countryName[name]);
-            txt2.text("Number of Top 100 Richest: " + count);
+            tooltiptxt.text(countryName[name]);
+            tooltiptxt2.text("Number of Top 100 Richest: " + count);
             pList.text(peoplelist);
             let bounds = path.bounds(country.datum());
             let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
@@ -366,11 +366,11 @@
               .style("width", tooltipWidth / transform.k)
               .style("height", tooltipHeight / transform.k);
 
-            txt
+            tooltiptxt
               .style("font-size", tooltipfontsize / transform.k)
               .attr("y", (tooltipfontsize * 2) / transform.k);
 
-            txt2
+            tooltiptxt2
               .style("font-size", (tooltipfontsize * 0.875) / transform.k)
               .attr("y", (tooltipfontsize * 3.5) / transform.k);
           }
@@ -528,28 +528,30 @@
             .scaleLinear()
             .domain([0, 240])
             .range([0, barheight - 10]);
-          let panelWidth = 250;
-          let panelHeight = 250;
 
-          let panel = view
-            .append("g")
-            .attr("class", "tooltip")
-            .attr("visibility", "hidden");
-          panel
-            .append("rect")
-            .attr("fill", "white")
-            .attr("opacity", 0.9)
-            .attr("x", -panelWidth / 2.0)
-            .attr("y", 0)
-            .attr("width", panelWidth)
-            .attr("height", panelHeight);
+          let panelWidth = 400;
+          let panelHeight = 120;
+
+          let panel = view.append("g").attr("visibility", "hidden");
+
+          // panel
+          //   .append("rect")
+          //   .attr("class", "panel")
+          //   .attr("fill", "white")
+          //   .attr("opacity", 0.9)
+          //   .attr("x", -panelWidth / 2.0)
+          //   .attr("y", 0)
+          //   .attr("width", panelWidth)
+          //   .attr("height", panelHeight)
+          //   .attr("border-radius", 12);
+
           let txt = panel
             .append("text")
             .attr("fill", "black")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
-            .attr("y", 10)
+            .attr("y", 20)
             .attr("font-size", "25px");
           let txt2 = panel
             .append("text")
@@ -557,7 +559,7 @@
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
-            .attr("y", 40)
+            .attr("y", 50)
             .attr("font-size", "20px");
           let txt3 = panel
             .append("text")
@@ -565,7 +567,7 @@
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
-            .attr("y", 60)
+            .attr("y", 74)
             .attr("font-size", "20px");
 
           people.forEach((d) => {
@@ -575,7 +577,7 @@
               .attr("x2", rankScale(d["rank"]))
               .attr("y1", barheight - 10)
               .attr("y2", barheight - worthScale(d["net_worth"]))
-              .style("stroke", "grey")
+              .style("stroke", "gray")
               .style("stroke-width", "15px")
               .on("mouseover", function () {
                 panel.style("visibility", "visible");
