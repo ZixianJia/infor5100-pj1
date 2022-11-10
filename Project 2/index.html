@@ -31,6 +31,11 @@
       g {
         font-size:8;
       }
+
+      #plistdiv {
+        margin-left: 30px;
+        height: 100px;
+      }
     
     
     </style>
@@ -38,7 +43,9 @@
     
     <body>
       <p><h1>Top 100 Richest People in the World</h1></p>
-      <svg id="choropleth" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
+      <div id="plistdiv"><h4>People on the list:</h4><p id="peoplelist">  </p></div>
+
+      <svg id="choropleth" height="600" width="1000" style="background: #ffffff; margin-top:20px"></svg>
       <svg id="colorLegend" height="100" width="1000" style="background: #fff; margin-top:30px; margin-right:auto; margin-left:auto" ></svg>
       <svg id="barchart" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
 
@@ -46,7 +53,7 @@
         const svg = d3.select("#choropleth");
         const width = svg.attr("width");
         const height = svg.attr("height");
-        const margin = { top: 20, right: 20, bottom: 20, left:20};
+        const margin = { top: 20, right: 20, bottom: 50, left:20};
         const mapWidth = width - margin.left - margin.right;
         const mapHeight = height - margin.top - margin.bottom;
         const map = svg.append("g")
@@ -107,7 +114,6 @@
             countryName[row.country_name] = row.country_name;
           });
           console.log(countryGDP);
-          console.log(countryName);
     
           // create quantiles colorscale with 2018 gdp, null value has default color #ebd7cf
           const minMax = d3.extent(Object.values(countryGDP))
@@ -125,12 +131,13 @@
     
     
           // hover over
-          let tooltipWidth = 120;
-          let tooltipHeight = 40;
+          let tooltipWidth = 200;
+          let tooltipHeight = 80;
     
           // tooltip and annotations
           let momesh =  viewport.append("path")
-                           .attr("class","mouseover outline")
+                           
+          .attr("class","mouseover outline")
                            .style("stroke", "black")
                            .style("stroke-width", 2)
                            .attr("d", "");
@@ -142,21 +149,24 @@
                       .attr("fill", "black")
                       .attr("opacity", 0.9)
                       .attr("x", -tooltipWidth / 2.0)
-                      .attr("y", 0)
+                      .attr("y", 20)
                       .attr("width",tooltipWidth)
                       .attr("height",tooltipHeight)
                let txt = tooltip.append("text")
                                 .attr("fill", "#ffffff")
                                 .attr("text-anchor","middle")
                                 .attr("alignment-baseline","hanging")
+                                .attr("font-size", 18)
                                 .attr("x", 0)
-                                .attr("y", 10);
+                                .attr("y", 30);
                let txt2 = tooltip.append("text")
                                 .attr("fill", "#ffffff")
                                 .attr("text-anchor","middle")
                                 .attr("alignment-baseline","hanging")
                                 .attr("x", 0)
-                                .attr("y", 22);
+                                .attr("font-size", 14)
+                                .attr("y", 60);
+              
     
               function mouseEntersState() {
                     // make tooltip visible
@@ -167,14 +177,18 @@
                     let countryID = country.datum().id;
                     let name = country.datum().properties.name;
                     let count = 0;
+                    let peoplelist = [];
+                    let pList = d3.select("#peoplelist");
                     people.forEach (d => {
-                      if (d['nationality'] == name) { count = count + 1 }
+                      if (d['nationality'] == name) { count = count + 1 ;
+                      
+                     peoplelist.push(" "+d["name"]); }
 
                     });
-                    
-                    
+                  
                     txt.text(countryName[ name ]);
-                    txt2.text("Number of billionaires: " + count);
+                    txt2.text("Number of Top 100 Richest: " + count);
+                    pList.text(peoplelist);
                     let bounds = path.bounds( country.datum() );
                     let xPos = (bounds[0][0]+bounds[1][0])/2.0;
                     let yPos = bounds[1][1] - 15;
@@ -185,14 +199,16 @@
                     momesh.datum(mo).attr("d", path)
             };
             function mouseLeavesState() {
-    
+              let pList = d3.select("#peoplelist");
+              pList.text("");
              // Hide when you leave a state
              tooltip.style("visibility","hidden");
     
              let country = d3.select(this);
     
              momesh.attr("d", "");
-    
+
+             
             }
     
             // zoom map
@@ -208,6 +224,9 @@
     
               viewport.select(".outline")
                       .style("stroke-width", 1 / transform.k);
+
+                      viewport.select(".mouseover ")
+                      .style("stroke-width", 3 / transform.k);
           }
     
           
