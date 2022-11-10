@@ -1,344 +1,501 @@
-<html><head>
+<html>
+  <head>
     <title>INFO 5100 - Project 2</title>
-    
-      <script src="https://d3js.org/d3.v7.min.js"></script>
-      <script src="https://d3js.org/topojson.v3.min.js"></script>
-    
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
+
     <style>
-    
       h1 {
         text-align: center;
       }
-    
+
       .country {
         fill: #ebd7cf;
       }
-    
+
       .outline {
         fill: none;
-        stroke: black;
+        stroke: #343434;
         stroke-width: 1px;
       }
       .graticule {
-          fill: none;
-          stroke: lightgrey;
-          stroke-width: 0.5px;
+        fill: none;
+        stroke: lightgrey;
+        stroke-width: 0.5px;
       }
       .tooltip {
-          pointer-events: none;
+        pointer-events: none;
       }
-    
+
       g {
-        font-size:8;
+        font-size: 8;
       }
 
       #plistdiv {
-        margin-left: 30px;
-        height: 100px;
+        height: 144px;
+        margin: 0 auto;
+        text-align: center;
+        max-width: 1000px;
+        background-color: white;
+        border-radius: 12px;
+        border-style: none;
+        padding-bottom: 20px;
+        padding-top: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
       }
-    
-    
-    </style>
-    </head>
-    
-    <body>
-      <p><h1>Top 100 Richest People in the World</h1></p>
-      <div id="plistdiv"><h4>People on the list:</h4><p id="peoplelist">  </p></div>
 
-      <svg id="choropleth" height="600" width="1000" style="background: #ffffff; margin-top:20px"></svg>
-      <svg id="colorLegend" height="100" width="1000" style="background: #fff; margin-top:30px; margin-right:auto; margin-left:auto" ></svg>
-      <svg id="barchart" height="500" width="1000" style="background: #ffffff; margin-top:20px"></svg>
+      #choropleth {
+      }
+
+      .header {
+      }
+
+      main {
+        margin: 0 auto;
+        text-align: center;
+        max-width: 1200px;
+        background-color: #f7f8fb;
+        padding-top: 0;
+        color: #343434;
+      }
+
+      body {
+        background-color: #e1e4f1;
+
+        margin: 0px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+
+      header {
+        padding-top: 40px;
+        padding-bottom: 32px;
+        margin-bottom: 20px;
+        margin-left: 120px;
+        margin-right: 120px;
+        border-bottom: solid;
+        border-color: #785eb0;
+        border-width: 4px;
+        /* background-color: white; */
+        /* border-radius: 12px; */
+      }
+
+      #vis1 {
+        /* background-color: white; */
+        /* border-radius: 12px;  */
+        padding-top: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <header>
+        <h1 class="header">Top 100 Richest People in the World</h1>
+        <p>
+          <strong>Team: </strong>Hanna Tormey, Kehui Guo, Yan Zhu, Zixian Jia
+        </p>
+      </header>
+
+      <!-- First Visualization -->
+
+      <div id="vis1">
+        <h3 class="header">
+          Visualization 1: World map with GDP and "World rich 100" (Hover
+          countries to see details)
+        </h3>
+
+        <svg id="choropleth" height="600" width="1000"></svg>
+      </div>
+      <div id="plistdiv">
+        <h4 class="header">"Rich 100" people from this country:</h4>
+        <p id="peoplelist"></p>
+      </div>
+
+      <div class="legend" style="margin-top: 40px">
+        <svg
+          id="colorLegend"
+          height="100"
+          width="1000"
+          style="margin-bottom: 0px; margin-right: auto; margin-left: auto"
+        ></svg>
+        <p style="margin-top: 0">GDP in year 2018</p>
+      </div>
+
+      <!-- Second Visualization -->
+      <h3 class="header" style="margin-top: 144px">
+        Visualization 2: "World rich 100" histogram (Hover bars to see details)
+      </h3>
+      <svg
+        id="barchart"
+        height="500"
+        width="1000"
+        style="margin-top: 20px"
+      ></svg>
 
       <script>
         const svg = d3.select("#choropleth");
         const width = svg.attr("width");
         const height = svg.attr("height");
-        const margin = { top: 20, right: 20, bottom: 50, left:20};
+        const margin = { top: 20, right: 20, bottom: 50, left: 20 };
         const mapWidth = width - margin.left - margin.right;
         const mapHeight = height - margin.top - margin.bottom;
-        const map = svg.append("g")
-                        .attr("transform","translate("+margin.left+","+margin.top+")");
-    
-    
+        const map = svg
+          .append("g")
+          .attr(
+            "transform",
+            "translate(" + margin.left + "," + margin.top + ")"
+          );
+
         const requestData = async () => {
-    
           // load dataset
           let people = await d3.csv("top_100_richest.csv");
           let gdp = await d3.csv("GDP.csv");
-          let worldmap = await d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json");
-    
+          let worldmap = await d3.json(
+            "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
+          );
+
           console.log(people);
           console.log(worldmap);
-    
-          // draw world map
-          var countries = topojson.feature(worldmap, worldmap.objects.countries);
-          var countriesMesh = topojson.mesh(worldmap, worldmap.objects.countries);
-          var projection = d3.geoNaturalEarth1().fitSize([mapWidth, mapHeight], countries);
+
+          //--------------------------- draw world map ---------------------------------
+          var countries = topojson.feature(
+            worldmap,
+            worldmap.objects.countries
+          );
+          var countriesMesh = topojson.mesh(
+            worldmap,
+            worldmap.objects.countries
+          );
+          var projection = d3
+            .geoNaturalEarth1()
+            .fitSize([mapWidth, mapHeight], countries);
           var path = d3.geoPath().projection(projection);
           // console.log(countries);
           // console.log(countriesMesh);
-    
+
           let viewport = map.append("g");
-    
+
           let graticule = d3.geoGraticule10();
-              // console.log(graticule);
-              viewport.append("path").attr("class","graticule").attr("d", path(graticule));
-    
-          let countryPaths = viewport.selectAll("path.country").data(countries.features)
-                           .join("path")
-                           .attr("class", "country")
-                           .attr("note", d => d.id)  // debugging
-                           .attr("d", path)
-                           .on('mouseover',  mouseEntersState )
-                           .on('mouseout',  mouseLeavesState );
-    
-          viewport.append("path").datum(countriesMesh)
-             .attr("class","outline")
-             .attr("d", path);
-    
-    
+          // console.log(graticule);
+          viewport
+            .append("path")
+            .attr("class", "graticule")
+            .attr("d", path(graticule));
+
+          let countryPaths = viewport
+            .selectAll("path.country")
+            .data(countries.features)
+            .join("path")
+            .attr("class", "country")
+            .attr("note", (d) => d.id) // debugging
+            .attr("d", path)
+            .on("mouseover", mouseEntersState)
+            .on("mouseout", mouseLeavesState);
+
+          viewport
+            .append("path")
+            .datum(countriesMesh)
+            .attr("class", "outline")
+            .attr("d", path);
+
           // use 2018 gdp for coloring countries
           // changing column names of 'country_code' & 'country' & 'gdp_2018'
-          gdp.forEach (d => {
-            d['country_code'] = d['Country Code'];
-            d['country_name'] = d['Country '];
-            d['gdp_2018'] = d['2018'];
+          gdp.forEach((d) => {
+            d["country_code"] = d["Country Code"];
+            d["country_name"] = d["Country "];
+            d["gdp_2018"] = d["2018"];
           });
           console.log(gdp);
-    
-    
-          let countryGDP = {}
-          let countryName = {}
-          gdp.forEach (row => {
+
+          let countryGDP = {};
+          let countryName = {};
+          gdp.forEach((row) => {
             countryGDP[row.country_name] = Number(row.gdp_2018);
             countryName[row.country_name] = row.country_name;
           });
           console.log(countryGDP);
-    
+
           // create quantiles colorscale with 2018 gdp, null value has default color #ebd7cf
-          const minMax = d3.extent(Object.values(countryGDP))
+          const minMax = d3.extent(Object.values(countryGDP));
           // console.log(minMax);
-    
-          const colorScale = d3.scaleQuantile()      // LLLLLLLLL
-                             .domain(Object.values(countryGDP))
-                             .range(["#ffda5c","#fa8a55","#d2204b","#921a6d","#350d5f"]);
-    
-          viewport.selectAll(".country")
-             .style("fill", d => colorScale( countryGDP[d.properties.name]) );
-    
+
+          var color_arr = [
+            "#EDC1E1",
+            "#C780D9",
+            "#7D52D8",
+            "#59389F",
+            "#331466",
+          ];
+          const colorScale = d3
+            .scaleQuantile() // LLLLLLLLL
+            .domain(Object.values(countryGDP))
+            .range(color_arr);
+          // .range(["#ffda5c", "#fa8a55", "#d2204b", "#921a6d", "#350d5f"]);
+
+          viewport
+            .selectAll(".country")
+            .style("fill", (d) => colorScale(countryGDP[d.properties.name]));
+
           // use lecture code to draw legend
           drawLegend("#colorLegend", colorScale);
-    
-    
+
           // hover over
-          let tooltipWidth = 200;
-          let tooltipHeight = 80;
-    
+          let tooltipWidth = 220;
+          let tooltipHeight = 64;
+          let tooltipfontsize = 16;
+
           // tooltip and annotations
-          let momesh =  viewport.append("path")
-                           
-          .attr("class","mouseover outline")
-                           .style("stroke", "black")
-                           .style("stroke-width", 2)
-                           .attr("d", "");
-    
-           let tooltip = viewport.append("g")
-                                .attr("class","tooltip")
-                                .attr("visibility","hidden");
-               tooltip.append("rect")
-                      .attr("fill", "black")
-                      .attr("opacity", 0.9)
-                      .attr("x", -tooltipWidth / 2.0)
-                      .attr("y", 20)
-                      .attr("width",tooltipWidth)
-                      .attr("height",tooltipHeight)
-               let txt = tooltip.append("text")
-                                .attr("fill", "#ffffff")
-                                .attr("text-anchor","middle")
-                                .attr("alignment-baseline","hanging")
-                                .attr("font-size", 18)
-                                .attr("x", 0)
-                                .attr("y", 30);
-               let txt2 = tooltip.append("text")
-                                .attr("fill", "#ffffff")
-                                .attr("text-anchor","middle")
-                                .attr("alignment-baseline","hanging")
-                                .attr("x", 0)
-                                .attr("font-size", 14)
-                                .attr("y", 60);
-              
-    
-              function mouseEntersState() {
-                    // make tooltip visible
-                    tooltip.style("visibility","visible")
-    
-                    // find the state SVG element and add stroke
-                    let country = d3.select(this);
-                    let countryID = country.datum().id;
-                    let name = country.datum().properties.name;
-                    let count = 0;
-                    let peoplelist = [];
-                    let pList = d3.select("#peoplelist");
-                    people.forEach (d => {
-                      if (d['nationality'] == name) { count = count + 1 ;
-                      
-                     peoplelist.push(" "+d["name"]); }
+          let momesh = viewport
+            .append("path")
+            .attr("class", "mouseover outline")
+            .style("stroke", "#F3C00A")
+            .style("stroke-width", 2)
+            .attr("d", "");
 
-                    });
-                  
-                    txt.text(countryName[ name ]);
-                    txt2.text("Number of Top 100 Richest: " + count);
-                    pList.text(peoplelist);
-                    let bounds = path.bounds( country.datum() );
-                    let xPos = (bounds[0][0]+bounds[1][0])/2.0;
-                    let yPos = bounds[1][1] - 15;
-                    tooltip.attr("transform",`translate(${xPos},${yPos})`);
-    
-                    var mo = topojson.mesh(worldmap, worldmap.objects.countries, function(a, b) { return a.id === countryID || b.id === countryID; });
-    
-                    momesh.datum(mo).attr("d", path)
-            };
-            function mouseLeavesState() {
-              let pList = d3.select("#peoplelist");
-              pList.text("");
-             // Hide when you leave a state
-             tooltip.style("visibility","hidden");
-    
-             let country = d3.select(this);
-    
-             momesh.attr("d", "");
+          let tooltip = viewport
+            .append("g")
+            .attr("class", "tooltip")
+            .attr("visibility", "hidden");
+          tooltip
+            .append("rect")
+            .attr("class", "tooltiprec")
+            .attr("fill", "black")
+            .attr("opacity", 0.8)
+            .attr("x", -tooltipWidth / 2.0)
+            .attr("y", 20)
+            .attr("width", tooltipWidth)
+            .attr("height", tooltipHeight);
+          let txt = tooltip
+            .append("text")
+            .attr("fill", "#ffffff")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "hanging")
+            .attr("font-size", tooltipfontsize)
+            .attr("x", 0)
+            .attr("y", tooltipfontsize * 2);
+          let txt2 = tooltip
+            .append("text")
+            .attr("fill", "#ffffff")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "hanging")
+            .attr("x", 0)
+            .attr("font-size", tooltipfontsize * 0.875)
+            .attr("y", tooltipfontsize * 3.5);
 
-             
-            }
-    
-            // zoom map
-            var zoom = d3.zoom()
-                      .scaleExtent([1,10])
-                      .translateExtent([[-50,-50],[mapWidth+50,mapHeight+50]])
-                      .on("zoom", mapZoomed);
-    
-            map.call(zoom);
-            map.call(zoom.trviewportansform, d3.zoomIdentity);
-            function mapZoomed({transform}) {
-              viewport.attr("transform", transform.toString() );
-    
-              viewport.select(".outline")
-                      .style("stroke-width", 1 / transform.k);
+          function mouseEntersState() {
+            // make tooltip visible
+            tooltip.style("visibility", "visible");
 
-                      viewport.select(".mouseover ")
-                      .style("stroke-width", 3 / transform.k);
+            // find the state SVG element and add stroke
+            let country = d3.select(this);
+            let countryID = country.datum().id;
+            let name = country.datum().properties.name;
+            let count = 0;
+            let peoplelist = [];
+            let pList = d3.select("#peoplelist");
+            people.forEach((d) => {
+              if (d["nationality"] == name) {
+                count = count + 1;
+
+                peoplelist.push(" " + d["name"]);
+              }
+            });
+
+            txt.text(countryName[name]);
+            txt2.text("Number of Top 100 Richest: " + count);
+            pList.text(peoplelist);
+            let bounds = path.bounds(country.datum());
+            let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+            let yPos = bounds[1][1] - 15;
+            tooltip.attr("transform", `translate(${xPos},${yPos})`);
+
+            var mo = topojson.mesh(
+              worldmap,
+              worldmap.objects.countries,
+              function (a, b) {
+                return a.id === countryID || b.id === countryID;
+              }
+            );
+
+            momesh.datum(mo).attr("d", path);
           }
-    
-          
-    
+          function mouseLeavesState() {
+            let pList = d3.select("#peoplelist");
+            pList.text("");
+            // Hide when you leave a state
+            tooltip.style("visibility", "hidden");
+
+            let country = d3.select(this);
+
+            momesh.attr("d", "");
+          }
+
+          // zoom map
+          var zoom = d3
+            .zoom()
+            .scaleExtent([1, 10])
+            .translateExtent([
+              [-50, -50],
+              [mapWidth + 50, mapHeight + 50],
+            ])
+            .on("zoom", mapZoomed);
+
+          map.call(zoom);
+          map.call(zoom.trviewportansform, d3.zoomIdentity);
+          function mapZoomed({ transform }) {
+            viewport.attr("transform", transform.toString());
+
+            viewport.select(".outline").style("stroke-width", 1 / transform.k);
+
+            viewport
+              .select(".mouseover ")
+              .style("stroke-width", 3 / transform.k);
+
+            tooltip
+              .select(".tooltiprec ")
+              .attr("x", -tooltipWidth / 2.0 / transform.k)
+              .attr("y", 20 / transform.k)
+              .style("width", tooltipWidth / transform.k)
+              .style("height", tooltipHeight / transform.k);
+
+            txt
+              .style("font-size", tooltipfontsize / transform.k)
+              .attr("y", (tooltipfontsize * 2) / transform.k);
+
+            txt2
+              .style("font-size", (tooltipfontsize * 0.875) / transform.k)
+              .attr("y", (tooltipfontsize * 3.5) / transform.k);
+          }
         };
-    
+
         //request data
         requestData();
-    
       </script>
-    
-    
-    
-    
-    
-    
+
       <script>
         function drawLegend(legendSelector, legendColorScale) {
           //  color Legend code credit to Prof. Rz !!!
-            const offsets = { width: 30,
-                              top: 4,
-                              bottom: 24 };
-            const stepSize = 4;
-            const minMaxExtendPercent = 0;
-    
-            const legend = d3.select(legendSelector);
-            const legendHeight = legend.attr("height");
-            const legendBarWidth = legend.attr("width") - (offsets.width * 2);
-            const legendMinMax = d3.extent(legendColorScale.domain());
-                        // recover the min and max values from most kinds of numeric scales
-            const minMaxExtension = (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
-            const barHeight = legendHeight - offsets.top - offsets.bottom;
-            
-            // In this case the "data" are pixels, and we get numbers to use in colorScale
-            // Use this to make axis labels
-            let barScale = d3.scaleLinear().domain([legendMinMax[0]-minMaxExtension,
-                                                      legendMinMax[1]+minMaxExtension])
-                                           .range([0,legendBarWidth]);
-            let barAxis = d3.axisBottom(barScale);
-    
-            // Place for bar slices to live
-            let bar = legend.append("g")
-                            .attr("class", "legend colorbar")
-                            .attr("transform", `translate(${offsets.width},${offsets.top})`)
-    
-            // ****** SWITCHES FOR DIFFERENT SCALE TYPES ******
-    
-            // Check if we're using a binning scale - if so, we make blocks of color
-            if (legendColorScale.hasOwnProperty('thresholds') || legendColorScale.hasOwnProperty('quantiles')) {
-              // Get the thresholds
-              let thresholds = [];
-              if (legendColorScale.hasOwnProperty('thresholds')) { thresholds = legendColorScale.thresholds() }
-              else { thresholds = legendColorScale.quantiles() }
-    
-              const barThresholds = [legendMinMax[0], ...thresholds, legendMinMax[1]];
-    
-              barAxis.tickValues(barThresholds);
-    
-              for (let i=0; i<barThresholds.length-1; i++) {
-                let dataStart = barThresholds[i];
-                let dataEnd = barThresholds[i+1];
-                let pixelStart = barAxis.scale()(dataStart);
-                let pixelEnd = barAxis.scale()(dataEnd);
-    
-                bar.append("rect")
-                   .attr("x", pixelStart)
-                   .attr("y", 0)
-                   .attr("width", pixelEnd - pixelStart )
-                   .attr("height", barHeight)
-                   .style("fill", legendColorScale( (dataStart + dataEnd) / 2.0 ) );
+          const offsets = { width: 30, top: 4, bottom: 24 };
+          const stepSize = 4;
+          const minMaxExtendPercent = 0;
+
+          const legend = d3.select(legendSelector);
+          const legendHeight = legend.attr("height");
+          const legendBarWidth = legend.attr("width") - offsets.width * 2;
+          const legendMinMax = d3.extent(legendColorScale.domain());
+          // recover the min and max values from most kinds of numeric scales
+          const minMaxExtension =
+            (legendMinMax[1] - legendMinMax[0]) * minMaxExtendPercent;
+          const barHeight = legendHeight - offsets.top - offsets.bottom;
+
+          // In this case the "data" are pixels, and we get numbers to use in colorScale
+          // Use this to make axis labels
+          let barScale = d3
+            .scaleLinear()
+            .domain([
+              legendMinMax[0] - minMaxExtension,
+              legendMinMax[1] + minMaxExtension,
+            ])
+            .range([0, legendBarWidth]);
+          let barAxis = d3.axisBottom(barScale);
+
+          // Place for bar slices to live
+          let bar = legend
+            .append("g")
+            .attr("class", "legend colorbar")
+            .attr("transform", `translate(${offsets.width},${offsets.top})`);
+
+          // ****** SWITCHES FOR DIFFERENT SCALE TYPES ******
+
+          // Check if we're using a binning scale - if so, we make blocks of color
+          if (
+            legendColorScale.hasOwnProperty("thresholds") ||
+            legendColorScale.hasOwnProperty("quantiles")
+          ) {
+            // Get the thresholds
+            let thresholds = [];
+            if (legendColorScale.hasOwnProperty("thresholds")) {
+              thresholds = legendColorScale.thresholds();
+            } else {
+              thresholds = legendColorScale.quantiles();
+            }
+
+            const barThresholds = [
+              legendMinMax[0],
+              ...thresholds,
+              legendMinMax[1],
+            ];
+
+            barAxis.tickValues(barThresholds);
+
+            for (let i = 0; i < barThresholds.length - 1; i++) {
+              let dataStart = barThresholds[i];
+              let dataEnd = barThresholds[i + 1];
+              let pixelStart = barAxis.scale()(dataStart);
+              let pixelEnd = barAxis.scale()(dataEnd);
+
+              bar
+                .append("rect")
+                .attr("x", pixelStart)
+                .attr("y", 0)
+                .attr("width", pixelEnd - pixelStart)
+                .attr("height", barHeight)
+                .style("fill", legendColorScale((dataStart + dataEnd) / 2.0));
+            }
+          } else if (legendColorScale.hasOwnProperty("rangeRound")) {
+            for (let i = 0; i < legendBarWidth; i = i + stepSize) {
+              let center = i + stepSize / 2;
+              let dataCenter = barAxis.scale().invert(center);
+
+              if (dataCenter < legendMinMax[0]) {
+                bar
+                  .append("rect")
+                  .attr("x", i)
+                  .attr("y", 0)
+                  .attr("width", stepSize)
+                  .attr("height", barHeight)
+                  .style("fill", legendColorScale(legendMinMax[0]));
+              }
+              // within normal scale bounds
+              else if (dataCenter < legendMinMax[1]) {
+                bar
+                  .append("rect")
+                  .attr("x", i)
+                  .attr("y", 0)
+                  .attr("width", stepSize)
+                  .attr("height", barHeight)
+                  .style("fill", legendColorScale(dataCenter));
+              }
+              // above normal scale bounds
+              else {
+                bar
+                  .append("rect")
+                  .attr("x", i)
+                  .attr("y", 0)
+                  .attr("width", stepSize)
+                  .attr("height", barHeight)
+                  .style("fill", legendColorScale(legendMinMax[1]));
               }
             }
-            else if (legendColorScale.hasOwnProperty('rangeRound')) {
-              for (let i=0; i<legendBarWidth; i=i+stepSize) {
-    
-                let center = i+(stepSize/2);
-                let dataCenter = barAxis.scale().invert( center );
-    
-                if ( dataCenter < legendMinMax[0] ) {
-                  bar.append("rect")
-                     .attr("x", i)
-                     .attr("y", 0)
-                     .attr("width", stepSize)
-                     .attr("height",barHeight)
-                     .style("fill", legendColorScale( legendMinMax[0] ) );
-                 }
-                 // within normal scale bounds
-                 else if ( dataCenter < legendMinMax[1] ) {
-                   bar.append("rect")
-                      .attr("x", i)
-                      .attr("y", 0)
-                      .attr("width", stepSize)
-                      .attr("height",barHeight)
-                      .style("fill", legendColorScale( dataCenter ) );
-                 }
-                 // above normal scale bounds
-                 else {
-                   bar.append("rect")
-                      .attr("x", i)
-                      .attr("y", 0)
-                      .attr("width", stepSize)
-                      .attr("height",barHeight)
-                      .style("fill", legendColorScale( legendMinMax[1] ) );
-                 }
-              }
-            };
-    
-            // Finally, draw legend labels
-            legend.append("g")
-                  .attr("class", "legend axis")
-                  .attr("transform",`translate(${offsets.width},${offsets.top+barHeight+5})`)
-                  .call(barAxis);
+          }
+
+          // Finally, draw legend labels
+          legend
+            .append("g")
+            .attr("class", "legend axis")
+            .attr(
+              "transform",
+              `translate(${offsets.width},${offsets.top + barHeight + 5})`
+            )
+            .call(barAxis);
         }
       </script>
 
@@ -346,7 +503,7 @@
         const view = d3.select("svg#barchart");
         const barwidth = view.attr("width");
         const barheight = view.attr("height");
-        const barmargin = {top: 10, right: 10, bottom: 50, left: 50};
+        const barmargin = { top: 10, right: 10, bottom: 50, left: 50 };
         const barchartWidth = barwidth - barmargin.left - barmargin.right;
         const barchartHeight = barheight - barmargin.top - barmargin.bottom;
 
@@ -354,99 +511,104 @@
           let people = await d3.csv("top_100_richest.csv");
           let gdp = await d3.csv("GDP.csv");
 
-          people.forEach (d => {
-            d['rank'] = Number(d['rank']);
-            d['net_worth'] = Number(d['net_worth'].replace("$", "").replace(" Billion", ""));  
+          people.forEach((d) => {
+            d["rank"] = Number(d["rank"]);
+            d["net_worth"] = Number(
+              d["net_worth"].replace("$", "").replace(" Billion", "")
+            );
           });
 
           console.log(people);
 
-          let rankScale = d3.scaleLinear().domain([1,50]).range([10,barwidth-10]);
-          let worthScale = d3.scaleLinear().domain([0,240]).range([0,barheight-10]);
+          let rankScale = d3
+            .scaleLinear()
+            .domain([1, 50])
+            .range([10, barwidth - 10]);
+          let worthScale = d3
+            .scaleLinear()
+            .domain([0, 240])
+            .range([0, barheight - 10]);
           let panelWidth = 250;
           let panelHeight = 250;
 
-          let panel = view.append("g")
-                                .attr("class","tooltip")
-                                .attr("visibility","hidden");
-               panel.append("rect")
-                      .attr("fill", "white")
-                      .attr("opacity", 0.9)
-                      .attr("x", -panelWidth / 2.0)
-                      .attr("y", 0)
-                      .attr("width",panelWidth)
-                      .attr("height",panelHeight)
-               let txt = panel.append("text")
-                                .attr("fill", "black")
-                                .attr("text-anchor","middle")
-                                .attr("alignment-baseline","hanging")
-                                .attr("x", 0)
-                                .attr("y", 10)
-                                .attr("font-size", "25px");
-               let txt2 = panel.append("text")
-                                .attr("fill", "black")
-                                .attr("text-anchor","middle")
-                                .attr("alignment-baseline","hanging")
-                                .attr("x", 0)
-                                .attr("y", 40)
-                                .attr("font-size", "20px");
-                let txt3 = panel.append("text")
-                                .attr("fill", "black")
-                                .attr("text-anchor","middle")
-                                .attr("alignment-baseline","hanging")
-                                .attr("x", 0)
-                                .attr("y", 60)
-                                .attr("font-size", "20px");
-          
-          
-          
-          people.forEach((d) => {
-              view.append('line')
-                .attr("x1", rankScale(d['rank']))
-                .attr("x2", rankScale(d['rank']))
-                .attr("y1", barheight-10)
-                .attr("y2", barheight - worthScale(d['net_worth']))
-                .style("stroke", "grey")
-                .style("stroke-width", "15px")
-                .on("mouseover", function(){
-                
-                panel.style("visibility","visible")
-                d3.select(this)
-                .transition().duration(150)
-                .style("stroke-width", "20px")
-                .style("stroke", "black")
+          let panel = view
+            .append("g")
+            .attr("class", "tooltip")
+            .attr("visibility", "hidden");
+          panel
+            .append("rect")
+            .attr("fill", "white")
+            .attr("opacity", 0.9)
+            .attr("x", -panelWidth / 2.0)
+            .attr("y", 0)
+            .attr("width", panelWidth)
+            .attr("height", panelHeight);
+          let txt = panel
+            .append("text")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "hanging")
+            .attr("x", 0)
+            .attr("y", 10)
+            .attr("font-size", "25px");
+          let txt2 = panel
+            .append("text")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "hanging")
+            .attr("x", 0)
+            .attr("y", 40)
+            .attr("font-size", "20px");
+          let txt3 = panel
+            .append("text")
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .attr("alignment-baseline", "hanging")
+            .attr("x", 0)
+            .attr("y", 60)
+            .attr("font-size", "20px");
 
-                let name = d['name'];
-                let net = d['net_worth'];
-                let from = d['nationality'];
-                
-                txt.text(name+":");
-                txt2.text("$"+net+"Billion");
-                txt3.text('From '+from);
+          people.forEach((d) => {
+            view
+              .append("line")
+              .attr("x1", rankScale(d["rank"]))
+              .attr("x2", rankScale(d["rank"]))
+              .attr("y1", barheight - 10)
+              .attr("y2", barheight - worthScale(d["net_worth"]))
+              .style("stroke", "grey")
+              .style("stroke-width", "15px")
+              .on("mouseover", function () {
+                panel.style("visibility", "visible");
+                d3.select(this)
+                  .transition()
+                  .duration(150)
+                  .style("stroke-width", "20px")
+                  .style("stroke", "black");
+
+                let name = d["name"];
+                let net = d["net_worth"];
+                let from = d["nationality"];
+
+                txt.text(name + ":");
+                txt2.text("$" + net + "Billion");
+                txt3.text("From " + from);
 
                 let xPos = 800;
                 let yPos = 40;
-                panel.attr("transform",`translate(${xPos},${yPos})`);
-
-            })
-            .on("mouseout", function () {
-                
-              panel.style("visibility","hidden");
+                panel.attr("transform", `translate(${xPos},${yPos})`);
+              })
+              .on("mouseout", function () {
+                panel.style("visibility", "hidden");
                 d3.select(this)
-                .transition().duration(150)
-                .style("stroke", "grey")
-                .style("stroke-width", "15px");
-
-            });
-
+                  .transition()
+                  .duration(150)
+                  .style("stroke", "grey")
+                  .style("stroke-width", "15px");
+              });
           });
-
-
         };
         requestDatabar();
-
       </script>
-    
-    </body>
-    </html>
-    
+    </main>
+  </body>
+</html>
