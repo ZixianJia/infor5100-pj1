@@ -137,7 +137,7 @@
         id="barchart"
         height="500"
         width="1000"
-        style="margin-top: 20px"
+        style="margin-bottom: 50px; margin-top: 20px"
       ></svg>
 
       <script>
@@ -511,11 +511,52 @@
           let people = await d3.csv("top_100_richest.csv");
           let gdp = await d3.csv("GDP.csv");
 
+          // load map dataset
+          let worldmap = await d3.json(
+            "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
+          );
+
+          gdp.forEach((d) => {
+            d["country_code"] = d["Country Code"];
+            d["country_name"] = d["Country "];
+            d["gdp_2018"] = d["2018"];
+          });
+
+          let countryGDP = {};
+          let countryName = {};
+          gdp.forEach((row) => {
+            countryGDP[row.country_name] = Number(row.gdp_2018);
+            countryName[row.country_name] = row.country_name;
+          });
+
+          // create quantiles colorscale with 2018 gdp, null value has default color #ebd7cf
+          const minMax = d3.extent(Object.values(countryGDP));
+          // console.log(minMax);
+
+          var color_arr = [
+            "#EDC1E1",
+            "#C780D9",
+            "#7D52D8",
+            "#59389F",
+            "#331466",
+          ];
+          const colorScale = d3
+            .scaleQuantile() // LLLLLLLLL
+            .domain(Object.values(countryGDP))
+            .range(color_arr);
+          // .range(["#ffda5c", "#fa8a55", "#d2204b", "#921a6d", "#350d5f"]);
+
+          // viewport
+          //   .selectAll(".country")
+          //   .style("fill", (d) => colorScale(countryGDP[d.properties.name]));
+
+          
           people.forEach((d) => {
             d["rank"] = Number(d["rank"]);
             d["net_worth"] = Number(
               d["net_worth"].replace("$", "").replace(" Billion", "")
             );
+            d["country"] = (d["nationality"]);
           });
 
           console.log(people);
@@ -575,7 +616,8 @@
               .attr("x2", rankScale(d["rank"]))
               .attr("y1", barheight - 10)
               .attr("y2", barheight - worthScale(d["net_worth"]))
-              .style("stroke", "grey")
+              // .style("stroke", "grey")
+              .style("stroke", colorScale(countryGDP[d["country"]]))
               .style("stroke-width", "15px")
               .on("mouseover", function () {
                 panel.style("visibility", "visible");
@@ -583,7 +625,8 @@
                   .transition()
                   .duration(150)
                   .style("stroke-width", "20px")
-                  .style("stroke", "black");
+                  // .style("stroke", "black")
+                  .style("stroke", "#F3C00A");
 
                 let name = d["name"];
                 let net = d["net_worth"];
@@ -602,7 +645,8 @@
                 d3.select(this)
                   .transition()
                   .duration(150)
-                  .style("stroke", "grey")
+                  // .style("stroke", "grey")
+                  .style("stroke", colorScale(countryGDP[d["country"]]))
                   .style("stroke-width", "15px");
               });
           });
