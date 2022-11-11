@@ -46,11 +46,7 @@
         padding-right: 20px;
       }
 
-<<<<<<< HEAD
-      #panel {
-=======
       /* #choropleth {
->>>>>>> 4574e2433e3629c9d9f917caee08604072a6d6b0
       }
 
       .header {
@@ -554,13 +550,12 @@
           //   .selectAll(".country")
           //   .style("fill", (d) => colorScale(countryGDP[d.properties.name]));
 
-          
           people.forEach((d) => {
             d["rank"] = Number(d["rank"]);
             d["net_worth"] = Number(
               d["net_worth"].replace("$", "").replace(" Billion", "")
             );
-            d["country"] = (d["nationality"]);
+            d["country"] = d["nationality"];
           });
 
           console.log(people);
@@ -573,25 +568,6 @@
             .scaleLinear()
             .domain([0, 240])
             .range([0, barheight - 10]);
-<<<<<<< HEAD
-
-          let panelWidth = 400;
-          let panelHeight = 120;
-
-          let panel = view.append("g").attr("visibility", "hidden");
-
-          // panel
-          //   .append("rect")
-          //   .attr("class", "panel")
-          //   .attr("fill", "white")
-          //   .attr("opacity", 0.9)
-          //   .attr("x", -panelWidth / 2.0)
-          //   .attr("y", 0)
-          //   .attr("width", panelWidth)
-          //   .attr("height", panelHeight)
-          //   .attr("border-radius", 12);
-
-=======
           let panelWidth = 320;
           let panelHeight = 170;
 
@@ -606,47 +582,31 @@
             .attr("x", -panelWidth / 2.0)
             .attr("y", 0)
             .attr("width", panelWidth)
-            .attr("height", panelHeight/2.0);
->>>>>>> 4574e2433e3629c9d9f917caee08604072a6d6b0
+            .attr("height", panelHeight / 2.0);
           let txt = panel
             .append("text")
             .attr("fill", "black")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
-<<<<<<< HEAD
-            .attr("y", 20)
-            .attr("font-size", "25px");
-=======
             .attr("y", 10)
             .attr("font-size", "18px");
->>>>>>> 4574e2433e3629c9d9f917caee08604072a6d6b0
           let txt2 = panel
             .append("text")
             .attr("fill", "black")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
-<<<<<<< HEAD
-            .attr("y", 50)
-            .attr("font-size", "20px");
-=======
             .attr("y", 40)
             .attr("font-size", "14px");
->>>>>>> 4574e2433e3629c9d9f917caee08604072a6d6b0
           let txt3 = panel
             .append("text")
             .attr("fill", "black")
             .attr("text-anchor", "middle")
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
-<<<<<<< HEAD
-            .attr("y", 74)
-            .attr("font-size", "20px");
-=======
             .attr("y", 60)
             .attr("font-size", "14px");
->>>>>>> 4574e2433e3629c9d9f917caee08604072a6d6b0
 
           people.forEach((d) => {
             view
@@ -655,12 +615,8 @@
               .attr("x2", rankScale(d["rank"]))
               .attr("y1", barheight - 10)
               .attr("y2", barheight - worthScale(d["net_worth"]))
-<<<<<<< HEAD
-              .style("stroke", "gray")
-=======
               // .style("stroke", "grey")
               .style("stroke", colorScale(countryGDP[d["country"]]))
->>>>>>> 4574e2433e3629c9d9f917caee08604072a6d6b0
               .style("stroke-width", "15px")
               .on("mouseover", function () {
                 panel.style("visibility", "visible");
