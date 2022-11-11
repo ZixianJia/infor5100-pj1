@@ -529,7 +529,7 @@
             .domain([0, 240])
             .range([0, barheight - 10]);
           let panelWidth = 250;
-          let panelHeight = 250;
+          let panelHeight = 200;
 
           let panel = view
             .append("g")
@@ -542,7 +542,7 @@
             .attr("x", -panelWidth / 2.0)
             .attr("y", 0)
             .attr("width", panelWidth)
-            .attr("height", panelHeight);
+            .attr("height", panelHeight/2.0);
           let txt = panel
             .append("text")
             .attr("fill", "black")
@@ -550,7 +550,7 @@
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
             .attr("y", 10)
-            .attr("font-size", "25px");
+            .attr("font-size", "18px");
           let txt2 = panel
             .append("text")
             .attr("fill", "black")
@@ -558,7 +558,7 @@
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
             .attr("y", 40)
-            .attr("font-size", "20px");
+            .attr("font-size", "14px");
           let txt3 = panel
             .append("text")
             .attr("fill", "black")
@@ -566,7 +566,7 @@
             .attr("alignment-baseline", "hanging")
             .attr("x", 0)
             .attr("y", 60)
-            .attr("font-size", "20px");
+            .attr("font-size", "14px");
 
           people.forEach((d) => {
             view
