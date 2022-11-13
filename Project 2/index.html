@@ -315,7 +315,18 @@
             let bounds = path.bounds(country.datum());
             let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
             let yPos = bounds[1][1] - 15;
-            tooltip.attr("transform", `translate(${xPos},${yPos})`);
+            // if (xPos > 3/4*mapWidth){
+            //   tooltip.attr("transform", `translate(${xPos-100},${yPos})`);
+            // }
+            // else{
+            //   tooltip.attr("transform", `translate(${xPos},${yPos})`);
+            // };
+            if (yPos > 4/5*mapHeight){
+              tooltip.attr("transform", `translate(${xPos},${yPos-50})`);
+            }
+            else{
+              tooltip.attr("transform", `translate(${xPos},${yPos})`);
+            };
 
             var mo = topojson.mesh(
               worldmap,
