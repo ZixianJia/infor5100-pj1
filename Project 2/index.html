@@ -506,6 +506,8 @@
         const barmargin = { top: 10, right: 10, bottom: 50, left: 50 };
         const barchartWidth = barwidth - barmargin.left - barmargin.right;
         const barchartHeight = barheight - barmargin.top - barmargin.bottom;
+        let labels = view.append("g").attr("id","labels")
+                                .attr("transform","translate("+barmargin.left+","+(barmargin.top)+")");
 
         const requestDatabar = async () => {
           let people = await d3.csv("top_100_richest.csv");
@@ -564,10 +566,47 @@
             .scaleLinear()
             .domain([1, 50])
             .range([10, barwidth - 10]);
+
+          let bottomAxis = d3.axisBottom(rankScale)
+
           let worthScale = d3
             .scaleLinear()
             .domain([0, 240])
             .range([0, barheight - 10]);
+
+          let leftAxis = d3.axisLeft(worthScale).tickFormat(d3.format("$"));
+          
+          labels.append("g")
+                .attr("class", "y axis")
+                .attr("transform",`translate(${barmargin.left-40},${barmargin.top})`)
+                .call(leftAxis);
+                    
+          labels.append("g")
+                .attr("class", "x axis")
+                .attr("transform",`translate(${barmargin.left-40},${barmargin.top+barchartHeight})`)
+                .call(bottomAxis);
+          view
+              .append("text")
+              .attr("class", "x label")
+              .attr("text-anchor", "middle")
+              .attr("x", barchartWidth / 2 +50)
+              .attr("y", barchartHeight+60)
+              .style("font-family", "arial")
+              .style("font-size", 14)
+              .text("Rank");
+
+          view
+              .append("text")
+              .attr("class", "y label")
+              .attr("text-anchor", "middle")
+              .attr("y", 10)
+              .attr("x", 0 - barchartHeight / 2 -20)
+              .attr("dy", ".75em")
+              .attr("transform", "rotate(-90)")
+              .style("font-family", "Arial")
+              .style("font-size", 14)
+              .text("Wealth");
+
           let panelWidth = 320;
           let panelHeight = 170;
 
