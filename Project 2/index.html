@@ -534,7 +534,7 @@
 
         let rankScale = d3
           .scaleLinear()
-          .domain([1, 50])
+          .domain([1, 53])
           .range([10, barwidth - 10]);
 
         let bottomAxis = d3.axisBottom(rankScale);
@@ -710,9 +710,10 @@
                 let name = d["name"];
                 let net = d["net_worth"];
                 let from = d["nationality"];
+                let rank = d["rank"];
 
                 txt.text(name + ":");
-                txt2.text("$" + net + "Billion");
+                txt2.text("$" + net + "Billion" + " (rank: " + rank + ")");
                 txt3.text("From " + from);
 
                 let xPos = 800;
