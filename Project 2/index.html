@@ -131,7 +131,8 @@
 
       <!-- Second Visualization -->
       <h3 class="header" style="margin-top: 144px">
-        Visualization 2: Personal net worth of top 50 individual from the "World richest 100"(Hover bars to see details)
+        Visualization 2: Personal net worth of top 50 individual from the "World
+        richest 100"(Hover bars to see details)
       </h3>
       <svg
         id="barchart"
@@ -321,12 +322,11 @@
             // else{
             //   tooltip.attr("transform", `translate(${xPos},${yPos})`);
             // };
-            if (yPos > 4/5*mapHeight){
-              tooltip.attr("transform", `translate(${xPos},${yPos-50})`);
-            }
-            else{
+            if (yPos > (4 / 5) * mapHeight) {
+              tooltip.attr("transform", `translate(${xPos},${yPos - 50})`);
+            } else {
               tooltip.attr("transform", `translate(${xPos},${yPos})`);
-            };
+            }
 
             var mo = topojson.mesh(
               worldmap,
@@ -510,6 +510,7 @@
         }
       </script>
 
+      <!-------------------------Bar Chart------------------------------ -->
       <script>
         const view = d3.select("svg#barchart");
         const barwidth = view.attr("width");
@@ -517,8 +518,60 @@
         const barmargin = { top: 10, right: 10, bottom: 50, left: 50 };
         const barchartWidth = barwidth - barmargin.left - barmargin.right;
         const barchartHeight = barheight - barmargin.top - barmargin.bottom;
-        let labels = view.append("g").attr("id","labels")
-                                .attr("transform","translate("+barmargin.left+","+(barmargin.top)+")");
+        let labels = view.append("g").attr("id", "labels");
+        let chartArea = view
+          .append("g")
+          .attr("id", "bars")
+          .attr(
+            "transform",
+            `translate(${barmargin.left + 10},${barmargin.top})`
+          );
+
+        // .attr(
+        //   "transform",
+        //   "translate(" + barmargin.left + "," + barmargin.top + ")"
+        // );
+
+        let rankScale = d3
+          .scaleLinear()
+          .domain([1, 50])
+          .range([10, barwidth - 10]);
+
+        let bottomAxis = d3.axisBottom(rankScale);
+
+        let worthScale = d3
+          .scaleLinear()
+          .domain([0, 240])
+          .range([barchartHeight, 0]);
+
+        let leftAxis = d3.axisLeft(worthScale).tickFormat(d3.format("$"));
+        let leftGridlines = d3
+          .axisLeft(worthScale)
+          .tickSize(-barchartWidth - 10)
+          .tickFormat("");
+
+        labels
+          .append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${barmargin.left},${barmargin.top})`)
+          .call(leftAxis);
+
+        labels
+          .append("g")
+          .attr("class", "y gridlines")
+          .attr("transform", `translate(${barmargin.left},${barmargin.top})`)
+          .call(leftGridlines);
+
+        labels
+          .append("g")
+          .attr("class", "x axis")
+          .attr(
+            "transform",
+            `translate(${barmargin.left + 10},${
+              barmargin.top + barchartHeight + 10
+            })`
+          )
+          .call(bottomAxis);
 
         const requestDatabar = async () => {
           let people = await d3.csv("top_100_richest.csv");
@@ -573,50 +626,27 @@
 
           console.log(people);
 
-          let rankScale = d3
-            .scaleLinear()
-            .domain([1, 50])
-            .range([10, barwidth - 10]);
-
-          let bottomAxis = d3.axisBottom(rankScale)
-
-          let worthScale = d3
-            .scaleLinear()
-            .domain([0, 240])
-            .range([0, barheight - 10]);
-
-          let leftAxis = d3.axisLeft(worthScale).tickFormat(d3.format("$"));
-          
-          labels.append("g")
-                .attr("class", "y axis")
-                .attr("transform",`translate(${barmargin.left-40},${barmargin.top})`)
-                .call(leftAxis);
-                    
-          labels.append("g")
-                .attr("class", "x axis")
-                .attr("transform",`translate(${barmargin.left-40},${barmargin.top+barchartHeight})`)
-                .call(bottomAxis);
           view
-              .append("text")
-              .attr("class", "x label")
-              .attr("text-anchor", "middle")
-              .attr("x", barchartWidth / 2 +50)
-              .attr("y", barchartHeight+60)
-              .style("font-family", "arial")
-              .style("font-size", 14)
-              .text("Rank");
+            .append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "middle")
+            .attr("x", barchartWidth / 2 + 50)
+            .attr("y", barchartHeight + 60)
+            .style("font-family", "arial")
+            .style("font-size", 14)
+            .text("Rank");
 
           view
-              .append("text")
-              .attr("class", "y label")
-              .attr("text-anchor", "middle")
-              .attr("y", 10)
-              .attr("x", 0 - barchartHeight / 2 -20)
-              .attr("dy", ".75em")
-              .attr("transform", "rotate(-90)")
-              .style("font-family", "Arial")
-              .style("font-size", 14)
-              .text("Wealth");
+            .append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "middle")
+            .attr("y", 10)
+            .attr("x", 0 - barchartHeight / 2 - 20)
+            .attr("dy", ".75em")
+            .attr("transform", "rotate(-90)")
+            .style("font-family", "Arial")
+            .style("font-size", 14)
+            .text("Wealth");
 
           let panelWidth = 320;
           let panelHeight = 170;
@@ -659,12 +689,12 @@
             .attr("font-size", "14px");
 
           people.forEach((d) => {
-            view
+            chartArea
               .append("line")
               .attr("x1", rankScale(d["rank"]))
               .attr("x2", rankScale(d["rank"]))
-              .attr("y1", barheight - 10)
-              .attr("y2", barheight - worthScale(d["net_worth"]))
+              .attr("y1", barchartHeight)
+              .attr("y2", worthScale(d["net_worth"]))
               // .style("stroke", "grey")
               .style("stroke", colorScale(countryGDP[d["country"]]))
               .style("stroke-width", "15px")
