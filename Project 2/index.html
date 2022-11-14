@@ -159,9 +159,7 @@
           // load dataset
           let people = await d3.csv("top_100_richest.csv");
           let gdp = await d3.csv("GDP.csv");
-          let worldmap = await d3.json(
-            "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-          );
+          let worldmap = await d3.json("worldmap.json");
 
           console.log(people);
           console.log(worldmap);
@@ -224,7 +222,7 @@
           });
           console.log(countryGDP);
 
-          // create quantiles colorscale with 2018 gdp, null value has default color #ebd7cf
+          // create quantiles colorscale with 2018 gdp
           const minMax = d3.extent(Object.values(countryGDP));
           // console.log(minMax);
 
@@ -239,7 +237,6 @@
             .scaleQuantile() // LLLLLLLLL
             .domain(Object.values(countryGDP))
             .range(color_arr);
-          // .range(["#ffda5c", "#fa8a55", "#d2204b", "#921a6d", "#350d5f"]);
 
           viewport
             .selectAll(".country")
@@ -527,11 +524,6 @@
             `translate(${barmargin.left + 10},${barmargin.top})`
           );
 
-        // .attr(
-        //   "transform",
-        //   "translate(" + barmargin.left + "," + barmargin.top + ")"
-        // );
-
         let rankScale = d3
           .scaleLinear()
           .domain([1, 53])
@@ -578,9 +570,7 @@
           let gdp = await d3.csv("GDP.csv");
 
           // load map dataset
-          let worldmap = await d3.json(
-            "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-          );
+          let worldmap = await d3.json("worldmap.json");
 
           gdp.forEach((d) => {
             d["country_code"] = d["Country Code"];
@@ -599,6 +589,7 @@
           const minMax = d3.extent(Object.values(countryGDP));
           // console.log(minMax);
 
+          //match color with country gdp colorscale
           var color_arr = [
             "#EDC1E1",
             "#C780D9",
@@ -606,15 +597,11 @@
             "#59389F",
             "#331466",
           ];
+
           const colorScale = d3
             .scaleQuantile() // LLLLLLLLL
             .domain(Object.values(countryGDP))
             .range(color_arr);
-          // .range(["#ffda5c", "#fa8a55", "#d2204b", "#921a6d", "#350d5f"]);
-
-          // viewport
-          //   .selectAll(".country")
-          //   .style("fill", (d) => colorScale(countryGDP[d.properties.name]));
 
           people.forEach((d) => {
             d["rank"] = Number(d["rank"]);
@@ -731,6 +718,7 @@
               });
           });
         };
+
         requestDatabar();
       </script>
     </main>
